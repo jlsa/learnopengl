@@ -46,6 +46,19 @@ int main()
 		return -1;
 	}
 
+
+	float vertices[] = {
+		// X	 Y	   Z
+		-0.5f, -0.5f, 0.0f, // vertex 1
+		 0.5f, -0.5f, 0.0f, // vertex 2
+		 0.0f,  0.5f, 0.0f  // vertex 3
+	};
+
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
