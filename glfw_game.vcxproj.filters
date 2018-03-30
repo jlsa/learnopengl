@@ -26,5 +26,8 @@
     <None Include="VertexShader.vertexshader">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="FragmentShader.fragmentshader">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
