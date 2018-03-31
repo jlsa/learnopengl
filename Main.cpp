@@ -16,11 +16,14 @@ const char * GAME_TITLE = "Project-Mayra";
 // Shader sources
 const GLchar* vertexShaderSource = R"glsl(
     #version 330 core
-	layout (location = 0) in vec3 aPos;
+	layout (location = 0) in vec3 aPos; // position variable has attribute position 0
+	layout (location = 1) in vec3 aColor; // color variable has attribute position 1
 
+	out vec3 ourColor; // output a color to the fragment shader
 	void main()
 	{
 		gl_Position = vec4(aPos, 1.0);
+		ourColor = aColor; 
 	}
 )glsl";
 
@@ -28,11 +31,11 @@ const GLchar* fragmentShaderSource = R"glsl(
     #version 330 core
 	out vec4 FragColor;
 	
-	uniform vec4 ourColor; // we set this variable in the OpenGL code.
+	in vec3 ourColor; // we set this variable in the OpenGL code.
 
 	void main()
 	{
-		FragColor = ourColor;
+		FragColor = vec4(ourColor, 1.0);
 		//FragColor = vec4(0.396f, 0.498f, 0.388f, 1.0f);
 	}
 )glsl";
@@ -40,10 +43,13 @@ const GLchar* fragmentShaderSource = R"glsl(
 const GLchar* fragmentShaderSource2 = R"glsl(
     #version 330 core
 	out vec4 FragColor;
+	
+	in vec3 ourColor;
 
 	void main()
 	{
-		FragColor = vec4(0.972f, 0.964f, 0.466f, 1.0f);
+		FragColor = vec4(ourColor, 1.0);
+		//FragColor = vec4(0.972f, 0.964f, 0.466f, 1.0f);
 	}
 )glsl";
 
@@ -173,19 +179,18 @@ int main()
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	float triangle1[] = {
-		// X	 Y	   Z
-		-0.9f, -0.5f, 0.0f, // vertex 1 (left)
-		-0.0f, -0.5f, 0.0f, // vertex 2 (right)
-		-0.45f,  0.5f, 0.0f  // vertex 3 (top)
+		//	X		Y		Z		R		G		B
+			-0.9f,	-0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	// vertex 1 (left)
+			-0.0f,	-0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	// vertex 2 (right)
+			-0.45f,  0.5f,	0.0f,	0.0f,	1.0f,	1.0f	// vertex 3 (top)
 	};
 
 	float triangle2[] = {
-		// X	 Y	   Z
-		0.0f, -0.5f, 0.0f, // vertex 1 (left)
-		0.9f, -0.5f, 0.0f, // vertex 2 (right)
-		0.45f,  0.5f, 0.0f  // vertex 3 (top)
+		//	X		Y		Z		R		G		B
+			0.0f,	-0.5f,	0.0f,	0.0f,	1.0f,	1.0f,	// vertex 1 (left)
+			0.9f,	-0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	// vertex 2 (right)
+			0.45f,   0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	// vertex 3 (top)
 	};
-
 	
 	unsigned int VBOs[2], VAOs[2];//, EBO;
 	glGenVertexArrays(2, VAOs);
@@ -196,15 +201,23 @@ int main()
 	glBindVertexArray(VAOs[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle1), triangle1, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	// second triangle setup
 	glBindVertexArray(VAOs[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle2), triangle2, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	// render loop
 	// -----------
