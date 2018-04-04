@@ -1,6 +1,8 @@
 #include <glad/glad.h>
 #include <glfw3.h>
 
+#include "Shader.h"
+
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -11,47 +13,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 
-const char * GAME_TITLE = "Project-Mayra";
-
-// Shader sources
-const GLchar* vertexShaderSource = R"glsl(
-    #version 330 core
-	layout (location = 0) in vec3 aPos; // position variable has attribute position 0
-	layout (location = 1) in vec3 aColor; // color variable has attribute position 1
-
-	out vec3 ourColor; // output a color to the fragment shader
-	void main()
-	{
-		gl_Position = vec4(aPos, 1.0);
-		ourColor = aColor; 
-	}
-)glsl";
-
-const GLchar* fragmentShaderSource = R"glsl(
-    #version 330 core
-	out vec4 FragColor;
-	
-	in vec3 ourColor; // we set this variable in the OpenGL code.
-
-	void main()
-	{
-		FragColor = vec4(ourColor, 1.0);
-		//FragColor = vec4(0.396f, 0.498f, 0.388f, 1.0f);
-	}
-)glsl";
-
-const GLchar* fragmentShaderSource2 = R"glsl(
-    #version 330 core
-	out vec4 FragColor;
-	
-	in vec3 ourColor;
-
-	void main()
-	{
-		FragColor = vec4(ourColor, 1.0);
-		//FragColor = vec4(0.972f, 0.964f, 0.466f, 1.0f);
-	}
-)glsl";
+const char * GAME_TITLE = "Learning OpenGL C++ <3";
 
 int main()
 {
@@ -86,116 +48,35 @@ int main()
 		return -1;
 	}
 
-	/*int nrAttributes;
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-	std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
-*/
-	// build and compile the shader program
-	// ------------------------------------
-	// vertex shader
-	unsigned int vertexShader;
-	unsigned int fragmentShaders[2];
-	unsigned int shaderPrograms[2];
 
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShaders[0] = glCreateShader(GL_FRAGMENT_SHADER);
-	fragmentShaders[1] = glCreateShader(GL_FRAGMENT_SHADER);
-	shaderPrograms[0] = glCreateProgram();
-	shaderPrograms[1] = glCreateProgram();
-
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	glShaderSource(fragmentShaders[0], 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShaders[0]);
-
-	glShaderSource(fragmentShaders[1], 1, &fragmentShaderSource2, NULL);
-	glCompileShader(fragmentShaders[1]);
-
-	// link first program object
-	glAttachShader(shaderPrograms[0], vertexShader);
-	glAttachShader(shaderPrograms[0], fragmentShaders[0]);
-	glLinkProgram(shaderPrograms[0]);
-	// link second using a different fragment shader, but the same vertex shader
-	glAttachShader(shaderPrograms[1], vertexShader);
-	glAttachShader(shaderPrograms[1], fragmentShaders[1]);
-	glLinkProgram(shaderPrograms[1]);
-
-
-	/*// check for shader compile errors
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	// first fragment shader
-	*/
-	
-
-	/*glGetShaderiv(fragmentShaders[0], GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShaders[0], 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	// second fragment shader
-	fragmentShaders[1] = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShaders[1], 1, &fragmentShaderSource2, NULL);
-	glCompileShader(fragmentShaders[1]);
-
-	glGetShaderiv(fragmentShaders[1], GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShaders[1], 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}*/
-
-	// link shaders
-	//unsigned int shaderProgram;
-	//shaderProgram = glCreateProgram();
-
-	/*glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShaders[0]);
-	glAttachShader(shaderProgram, fragmentShaders[1]);
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-
-	// clean up - delete shaders after they have been linked is good!
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShaders[0]);
-	glDeleteShader(fragmentShaders[1]);
-	*/
+	Shader firstShader("VertexShader.vs", "FragmentShader.fs");
+	Shader secondShader("VertexShader.vs", "FragmentShader.fs");
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
+	float triangle0[] = {
+		//	X		Y		Z		R		G		B
+		-0.9f,	-0.5f,	0.0f,	1.0f,	0.5f,	0.5f,	// vertex 1 (left)
+		-0.0f,	-0.5f,	0.0f,	0.5f,	1.0f,	0.5f,	// vertex 2 (right)
+		-0.45f,  0.5f,	0.0f,	0.5f,	1.0f,	1.0f	// vertex 3 (top)
+	};
 	float triangle1[] = {
 		//	X		Y		Z		R		G		B
-			-0.9f,	-0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	// vertex 1 (left)
-			-0.0f,	-0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	// vertex 2 (right)
-			-0.45f,  0.5f,	0.0f,	0.0f,	1.0f,	1.0f	// vertex 3 (top)
+		-0.9f,	-0.5f,	0.0f,	1.0f,	1.0f,	0.5f,	// vertex 1 (left)
+		-0.0f,	-0.5f,	0.0f,	1.0f,	1.0f,	0.5f,	// vertex 2 (right)
+		-0.45f,  0.5f,	0.0f,	1.0f,	1.0f,	0.5f	// vertex 3 (top)
 	};
 
 	float triangle2[] = {
 		//	X		Y		Z		R		G		B
 			0.0f,	-0.5f,	0.0f,	0.0f,	1.0f,	1.0f,	// vertex 1 (left)
 			0.9f,	-0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	// vertex 2 (right)
-			0.45f,   0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	// vertex 3 (top)
+			0.45f,   0.5f,	0.0f,	1.0f,	0.0f,	0.0f	// vertex 3 (top)
 	};
 	
-	unsigned int VBOs[2], VAOs[2];//, EBO;
+	unsigned int VBOs[2], VAOs[2];
 	glGenVertexArrays(2, VAOs);
 	glGenBuffers(2, VBOs);
-	//glGenBuffers(1, &EBO);
 
 	// first triangle setup
 	glBindVertexArray(VAOs[0]);
@@ -234,18 +115,19 @@ int main()
 
 		
 		// draw our first triangle
-		glUseProgram(shaderPrograms[0]);
+		firstShader.use();
 
 		// update the uniform color
-		float timeValue = glfwGetTime();
-		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(shaderPrograms[0], "ourColor");
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		//float timeValue = glfwGetTime();
+		//float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+		//int vertexColorLocation = glGetUniformLocation(shaderPrograms[0], "ourColor");
+		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		//ourShader.setFloat("ourColor", 0.4f);
 		// draw first triangle
 		glBindVertexArray(VAOs[0]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		glUseProgram(shaderPrograms[1]);
+		secondShader.use();
 		// draw second triangle
 		glBindVertexArray(VAOs[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
