@@ -58,18 +58,10 @@ int main()
 	// ------------------------------------------------------------------
 	float vertices[] = {
 		//positions				colors				texture coords
-		 0.5f,	0.5f, 0.0f,		1.0f, 0.0f,	0.0f,	1.0f, 1.0f,	// top right
-		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f,	0.0f,	1.0f, 0.0f,	// bottom right
+		 0.5f,	0.5f, 0.0f,		1.0f, 0.0f,	0.0f,	2.0f, 2.0f,	// top right
+		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f,	0.0f,	2.0f, 0.0f,	// bottom right
 		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,	1.0f,	0.0f, 0.0f,	// bottom left
-		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f,	0.0f,	0.0f, 1.0f	// top left
-	};
-
-	float vertices2[] = {
-		// positions          // colors           // texture coords
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f,	0.0f,	0.0f, 2.0f	// top left
 	};
 
 	unsigned int indices[] = {
@@ -110,14 +102,14 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// Loading an image and generate it
 	int width, height, nrChannels;
-	//stbi_set_flip_vertically_on_load(true); // flip image on the y-axis.
+	stbi_set_flip_vertically_on_load(true); // flip image on the y-axis.
 
 	unsigned char *data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
 	if (data)
