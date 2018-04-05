@@ -117,7 +117,7 @@ int main()
 
 	// Loading an image and generate it
 	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true); // flip image on the y-axis.
+	//stbi_set_flip_vertically_on_load(true); // flip image on the y-axis.
 
 	unsigned char *data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
 	if (data)
