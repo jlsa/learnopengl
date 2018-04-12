@@ -7,6 +7,9 @@
 
 #include "stb_image.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -14,7 +17,6 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-
 
 const char * GAME_TITLE = "Learning OpenGL C++ <3";
 
@@ -180,10 +182,34 @@ int main()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
+		// create transformations (correct order is: translate than rotate)
+		glm::mat4 transform;
+		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		
 		ourShader.setFloat("InterPolation", interpolationValue);
-		// render container
 		ourShader.use();
+		// get matrix's uniform location and set matrix
+		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
+	
+		// render container
 		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+		glm::mat4 transform2;
+		transform2 = glm::translate(transform2, glm::vec3(-0.5f, 0.5f, 0.0f));
+		//transform2 = glm::rotate(transform2, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		transform2 = glm::scale(transform2, glm::vec3(sin((float)glfwGetTime()), cos((float)glfwGetTime()), 1.0f));//(float)glfwGetTime()
+
+		// get matrix's uniform location and set matrix
+		transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform2));
+
+		// render container
+		//glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
