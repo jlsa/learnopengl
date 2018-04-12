@@ -11,23 +11,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-const float PI = 3.14159265359f;
-
-float radians_to_degrees(float radians) {
-	return radians * (180.0f / PI);
-}
-
-float degrees_in_radians(float degrees) {
-	return degrees * (PI / 180.0f);
-}
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-
 
 const char * GAME_TITLE = "Learning OpenGL C++ <3";
 
@@ -36,20 +25,6 @@ float interpolationValue = 0.2f;
 
 int main()
 {
-
-	/*
-	glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-	glm::mat4 trans;
-	trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-	vec = trans * vec;
-
-	std::cout << "( " << vec.x << ", " << vec.y << ", " << vec.z << " )" << std::endl;
-	*/
-
-	float angleInDegrees = 0.1f;
-	float angleInRadians = degrees_in_radians(angleInDegrees);
-	std::cout << angleInDegrees << " == " << angleInRadians << std::endl;
-
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
@@ -208,14 +183,9 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
 		// create transformations (correct order is: translate than rotate)
-		// when the translation happens at 0, 0, 0 it doesnt matter for the order. BE AWARE OF THAT!
-		// if the rotation happens first than the translation method will take that as point to move from. 
 		glm::mat4 transform;
-		//transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-		transform = glm::translate(transform, glm::vec3(1.0f, -0.0f, 0.0f));
+		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
 		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		
-
 		
 		ourShader.setFloat("InterPolation", interpolationValue);
 		ourShader.use();
@@ -226,6 +196,20 @@ int main()
 	
 		// render container
 		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+		glm::mat4 transform2;
+		transform2 = glm::translate(transform2, glm::vec3(-0.5f, 0.5f, 0.0f));
+		//transform2 = glm::rotate(transform2, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		transform2 = glm::scale(transform2, glm::vec3(sin((float)glfwGetTime()), cos((float)glfwGetTime()), 1.0f));//(float)glfwGetTime()
+
+		// get matrix's uniform location and set matrix
+		transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform2));
+
+		// render container
+		//glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
