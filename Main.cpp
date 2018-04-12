@@ -207,11 +207,16 @@ int main()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
-		// create transformations
+		// create transformations (correct order is: translate than rotate)
+		// when the translation happens at 0, 0, 0 it doesnt matter for the order. BE AWARE OF THAT!
+		// if the rotation happens first than the translation method will take that as point to move from. 
 		glm::mat4 transform;
-		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		//transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		transform = glm::translate(transform, glm::vec3(1.0f, -0.0f, 0.0f));
 		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		
 
+		
 		ourShader.setFloat("InterPolation", interpolationValue);
 		ourShader.use();
 		// get matrix's uniform location and set matrix
