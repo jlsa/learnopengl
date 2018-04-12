@@ -7,6 +7,19 @@
 
 #include "stb_image.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+const float PI = 3.14159265359f;
+
+float radians_to_degrees(float radians) {
+	return radians * (180.0f / PI);
+}
+
+float degrees_in_radians(float degrees) {
+	return degrees * (PI / 180.0f);
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -23,6 +36,20 @@ float interpolationValue = 0.2f;
 
 int main()
 {
+
+	/*
+	glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+	glm::mat4 trans;
+	trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+	vec = trans * vec;
+
+	std::cout << "( " << vec.x << ", " << vec.y << ", " << vec.z << " )" << std::endl;
+	*/
+
+	float angleInDegrees = 0.1f;
+	float angleInRadians = degrees_in_radians(angleInDegrees);
+	std::cout << angleInDegrees << " == " << angleInRadians << std::endl;
+
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
@@ -180,9 +207,19 @@ int main()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
+		// create transformations
+		glm::mat4 transform;
+		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
 		ourShader.setFloat("InterPolation", interpolationValue);
-		// render container
 		ourShader.use();
+		// get matrix's uniform location and set matrix
+		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
+	
+		// render container
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
