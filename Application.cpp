@@ -9,28 +9,12 @@
 #include "Shader.h"
 #include "Application.h"
 
-
-/*
-// OKay, how does this work inside a class.. #TODO come back to this
-// currently fixed by function outside of class
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	// make sure the viewport matches the new window dimensions; note that width and
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-}*/
-
-
-
 Application::Application(std::string appTitle)
 	: _appTitle(appTitle), _windowWidth(800), _windowHeight(600)
 {
 	// should give error if it fails to load anything
 	// do nothing yet
 	_isRunning = false;
-	//_appTitle = appTitle;
-	//_windowWidth = 800;
-	//_windowHeight = 600;
 
 	bool initialized = Init();
 }
@@ -40,9 +24,6 @@ Application::Application(std::string appTitle, int windowWidth, int windowHeight
 	_windowWidth(windowWidth), _windowHeight(windowHeight)
 {
 	_isRunning = false;
-	//_appTitle = appTitle;
-	//_windowWidth = windowWidth;
-	//_windowHeight = windowHeight;
 
 	bool initialized = Init();
 }
@@ -116,8 +97,6 @@ bool Application::Init()
 		return false;
 	}
 	glfwMakeContextCurrent(_window);
-	
-	//glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
 
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -138,22 +117,31 @@ void Application::Tick(float deltaTime)
 	Render(deltaTime);
 }
 
-/*
-void Application::ProcessInput(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-*/
-
-/*
 void Application::HandleResizeEvent(GLFWwindow* window, int w, int h)
 {
 	std::cout << "Resizing..." << std::endl;
 	glViewport(0, 0, w, h);
 }
-*/
+
+
+void Application::HandleKeyboardInput(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, true);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Application::HandleMouseInput(GLFWwindow* window, double xpos, double ypos)
+{
+
+}
+
+void Application::HandleError(int error, std::string desc)
+{
+	// #TODO add logger..
+}

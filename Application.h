@@ -18,9 +18,10 @@ public:
 
 
 	// #TODO refactor this to events and error managers
-	//void ProcessInput(GLFWwindow* window, int key, int scancode, int action, int mods);
-	//void HandleResizeEvent(GLFWwindow * window, int w, int h);
-	//void HandleError(int error, std::string desc);
+	void HandleKeyboardInput(GLFWwindow* window, int key, int scancode, int action, int mods);
+	void HandleMouseInput(GLFWwindow* window, double xpos, double ypos);
+	void HandleResizeEvent(GLFWwindow * window, int w, int h);
+	void HandleError(int error, std::string desc);
 
 private:
 

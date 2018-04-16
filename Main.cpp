@@ -28,8 +28,23 @@ int main()
 {
 	auto app = MakeApp<Application>("Test Application", 1024, 768);
 
-	//Application app = Application("Test Application", 1024, 768);
-	
+	// ------------------------------------------------------------------
+	// Computer Stats
+	// ------------------------------------------------------------------
+	int amountOfMonitors{};
+	GLFWmonitor** monitors = glfwGetMonitors(&amountOfMonitors);
+	std::cout << amountOfMonitors << " monitors connected." << std::endl;
+
+	const char* name = glfwGetMonitorName(monitors[0]);
+	std::cout << "Primary monitor : " << name << std::endl;
+
+	if (amountOfMonitors > 1) {
+		for (int i = 1; i < amountOfMonitors; i++) {
+			name = glfwGetMonitorName(monitors[i]);
+			std::cout << "additional monitor : " << name << std::endl;
+		}
+	}
+
 	const GLubyte* gl_vendor = glGetString(GL_VENDOR);
 	const GLubyte* gl_renderer = glGetString(GL_RENDERER);
 	const GLubyte* gl_version = glGetString(GL_VERSION);
@@ -37,6 +52,8 @@ int main()
 	printf("Vendor: %s\n", gl_vendor);
 	printf("Renderer: %s\n", gl_renderer);
 	printf("Version: %s\n", gl_version);
+
+
 
 	Shader ourShader("VertexShader.vs", "FragmentShader.fs");
 

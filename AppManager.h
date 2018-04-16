@@ -20,28 +20,37 @@ class AppManager
 {
 	static Application* _app;
 
-	static void ProcessInput(GLFWwindow* window, int key, int scancode, int action, int mods)
+	static void HandleKeyboardInput(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		if (_app) {
-			//_app->ProcessInput(window, key, scancode, action, mods); // #TODO add input class to application
+			std::cout << key << ", " << scancode << ", " << action << ", " << mods << std::endl;
+			_app->HandleKeyboardInput(window, key, scancode, action, mods); // #TODO add input class to application
+		}
+	}
+
+	static void HandleMouseInput(GLFWwindow* window, double xpos, double ypos)
+	{
+		if (_app) {
+			std::cout << "Cursor is at (x: " << xpos << ", y:" << ypos << ")" << std::endl;
+			_app->HandleMouseInput(window, xpos, ypos);
 		}
 	}
 
 	static void HandleError(int error, const char* desc)
 	{
 		if (_app) {
-			//_app.HandleError(error, desc); // #TODO add error handling
+			_app->HandleError(error, desc); // #TODO add error handling
 		}
 	}
 
 	static void HandleResize(GLFWwindow* window, int width, int height)
 	{
 		if (_app) {
-			std::cout << "ResizeEventCalled { width: '" << width << "', height: '" << height << "' }" << std::endl;
+			//std::cout << "ResizeEventCalled { width: '" << width << "', height: '" << height << "' }" << std::endl;
 			// create window resize event
 			//WindowResizeEvent event = new WindowResizeEvent(window, width, height);
 			//_app.GetEventManager().HandleEvent(Event::Window::Resize, ); // #TODO create event manager
-			//_app.HandleResizeEvent(window, width, height);
+			_app->HandleResizeEvent(window, width, height);
 		}
 	}
 
@@ -50,9 +59,11 @@ public:
 	{
 		_app = app;
 
-		glfwSetKeyCallback(app->GetWindow(), ProcessInput);
 		glfwSetFramebufferSizeCallback(app->GetWindow(), HandleResize);
 		glfwSetErrorCallback(HandleError);
+
+		glfwSetKeyCallback(app->GetWindow(), HandleKeyboardInput);
+		glfwSetCursorPosCallback(app->GetWindow(), HandleMouseInput);
 	}
 };
 
