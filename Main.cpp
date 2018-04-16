@@ -1,59 +1,42 @@
 #include <glad/glad.h>
 #include <glfw3.h>
 
-#include "Shader.h"
-
 #include <iostream>
-
+#include <stdexcept>
 #include "stb_image.h"
 
+// self defined headers
+#include "AppManager.h"
+#include "Application.h"
+#include "Shader.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-
-
-const char * GAME_TITLE = "Learning OpenGL C++ <3";
+const std::string GAME_TITLE = "Learning OpenGL C++ <3";
 
 // default was 2.0f
 float interpolationValue = 0.2f;
 
+
+
+
+
 int main()
 {
-	// glfw: initialize and configure
-	// ------------------------------
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	auto app = MakeApp<Application>("Test Application", 1024, 768);
 
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
-#endif
+	//Application app = Application("Test Application", 1024, 768);
+	
+	const GLubyte* gl_vendor = glGetString(GL_VENDOR);
+	const GLubyte* gl_renderer = glGetString(GL_RENDERER);
+	const GLubyte* gl_version = glGetString(GL_VERSION);
 
-	// glfw window creation
-	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, GAME_TITLE, NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
-
+	printf("Vendor: %s\n", gl_vendor);
+	printf("Renderer: %s\n", gl_renderer);
+	printf("Version: %s\n", gl_version);
 
 	Shader ourShader("VertexShader.vs", "FragmentShader.fs");
 
@@ -160,13 +143,56 @@ int main()
 	// or set it via the texture class
 	ourShader.setInt("texture2", 1);
 
+
+	double lastFPStime = glfwGetTime();
+	double lastFrameTime = glfwGetTime();
+
+	int frameCounter = 0;
+
+	double t0 = glfwGetTime();
+	double t1;
+
+	float deltaTime;
+
 	// render loop
 	// -----------
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(app->GetWindow()))
 	{
+		t1 = glfwGetTime();
+		deltaTime = (float)(t1 - t0);
+		t0 = t1;
+
+		// update fps
+		// ----------
+		double thisFPStime = glfwGetTime();
+		frameCounter++;
+
+		if (thisFPStime - lastFPStime >= 1.0)
+		{
+			lastFPStime = thisFPStime;
+
+			std::string windowTitle = GAME_TITLE + " (";
+			windowTitle += std::to_string(frameCounter);
+			windowTitle += " fps - [ ";
+			windowTitle += std::to_string(deltaTime);
+			windowTitle += " ])";
+			const char* windowCaption = windowTitle.c_str();
+			glfwSetWindowTitle(app->GetWindow(), windowCaption);
+
+			frameCounter = 0;
+		}
+
+
+		double currTime = glfwGetTime();
+
+		app->Tick(deltaTime);
+
+		// renderer.renderScene(currtime - lastFrameTime); // deltatime
+		lastFrameTime = currTime;
+
 		// input
 		// -----
-		processInput(window);
+		//processInput(app->GetWindow());
 
 		// render
 		// ------
@@ -188,7 +214,7 @@ int main()
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(app->GetWindow());
 		glfwPollEvents();
 	}
 
@@ -235,9 +261,9 @@ void processInput(GLFWwindow *window)
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+/*void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
-}
+}*/
