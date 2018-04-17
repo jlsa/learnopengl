@@ -14,6 +14,8 @@
 // callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -35,6 +37,23 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 // timing
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f; // time of last frame
+
+bool firstMouse{ true };
+float lastX{ (float)SCR_WIDTH / 2.0f };
+float lastY{ (float)SCR_HEIGHT / 2.0f };
+float yaw{ -90.0f };
+float pitch{ 0.0f };
+float fov{ 45.0f };
+
+float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
+float nearPlane = 0.1f;
+float farPlane = 100.0f;
+
+float left = 0.0f;
+float right = (float)SCR_WIDTH;
+float bottom = 0.0f;
+float top = (float)SCR_HEIGHT;
+
 
 int main()
 {
@@ -60,6 +79,10 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+
+	glfwSetScrollCallback(window, scroll_callback);
 
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -249,15 +272,7 @@ int main()
 		glm::mat4 view;
 		glm::mat4 projection;
 
-		float fov = 45.0f;
-		float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
-		float nearPlane = 0.1f;
-		float farPlane = 100.0f;
-
-		float left = 0.0f;
-		float right = (float)SCR_WIDTH;
-		float bottom = 0.0f;
-		float top = (float)SCR_HEIGHT;
+		
 
 		if (perspectiveView)
 		{
@@ -368,4 +383,48 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // reversed since y-coords go from bottom to top
+	lastX = xpos;
+	lastY = ypos;
+
+	float sensitivity = 0.1f; // change this to your liking
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	// make sure that when pitch is out of bounds, screen doesn't get flipped
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
+
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(front);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	if (fov >= 1.0f && fov <= 45.0f)
+		fov -= yoffset;
+	if (fov <= 1.0f)
+		fov = 1.0f;
+	if (fov >= 45.0f)
+		fov = 45.0f;
 }
