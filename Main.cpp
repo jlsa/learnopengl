@@ -2,6 +2,7 @@
 #include <glfw3.h>
 
 #include "Shader.h"
+#include "Camera.h"
 
 #include <iostream>
 
@@ -11,23 +12,38 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+// callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-
-
 const char * GAME_TITLE = "Learning OpenGL C++ <3";
 
-// default was 2.0f
+// extra controls
 float interpolationValue{ 1.0f }; // 0.2f
 bool perspectiveView{ true };
 
-float xPos{}, yPos{}, zPos{-3.0f};
-float moveSpeed{ 0.005f }; // 0.001f
+// global movement speed multiplier
+float moveSpeed{ 5.0f }; // 0.001f
+
+// camera
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+bool firstMouse{ true };
+float lastX{ (float)SCR_WIDTH / 2.0f };
+float lastY{ (float)SCR_HEIGHT / 2.0f };
+
+// timing
+float deltaTime = 0.0f; // time between current frame and last frame
+float lastFrame = 0.0f; // time of last frame
+
+float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
+float nearPlane = 0.1f;
+float farPlane = 100.0f;
+
 
 int main()
 {
@@ -42,8 +58,8 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
 
-														 // glfw window creation
-														 // --------------------
+	// glfw window creation
+	// --------------------
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, GAME_TITLE, NULL, NULL);
 	if (window == NULL)
 	{
@@ -53,6 +69,10 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+
+	glfwSetScrollCallback(window, scroll_callback);
 
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -125,19 +145,6 @@ int main()
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-
-	glm::vec3 cubePositions2[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(1.0f,  5.0f, -15.0f),
-		glm::vec3(2.0f, -2.2f, -2.5f),
-		glm::vec3(3.0f, -2.0f, -12.3f),
-		glm::vec3(4.0f, -0.4f, -3.5f),
-		glm::vec3(5.0f,  3.0f, -7.5f),
-		glm::vec3(6.0f, -2.0f, -2.5f),
-		glm::vec3(7.0f,  2.0f, -2.5f),
-		glm::vec3(8.0f,  0.2f, -1.5f),
-		glm::vec3(9.0f,  1.0f, -1.5f)
 	};
 
 
@@ -221,17 +228,19 @@ int main()
 	stbi_image_free(data);
 
 	// tell OpenGL for each sampler to which texture unit it belongs to (only has to be done once)
-	ourShader.use(); // dont forget to activate/use the shader before setting uniforms!
-					 // either set it manually like so:
+	ourShader.use();
+
 	ourShader.setInt("texture1", 0);
-	//glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
-	// or set it via the texture class
 	ourShader.setInt("texture2", 1);
 
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		// input
 		// -----
 		processInput(window);
@@ -248,57 +257,32 @@ int main()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
+		// activate shader
 		ourShader.use();
 
-		
-		glm::mat4 view;
-		glm::mat4 projection;
-		float fov = 45.0f;
-		float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
-		float nearPlane = 0.1f;
-		float farPlane = 100.0f;
-
-		float left = 0.0f;
-		float right = (float)SCR_WIDTH;
-		float bottom = 0.0f;
-		float top = (float)SCR_HEIGHT;
-
-		if (perspectiveView)
-		{
-			projection = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
-		}
-		else 
-		{
-			projection = glm::ortho(left, right, bottom, top, nearPlane, farPlane);
-		}
-		view = glm::translate(view, glm::vec3(xPos, yPos, zPos));
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), aspectRatio, nearPlane, farPlane);
+		glm::mat4 view = camera.GetViewMatrix();
 
 		ourShader.setMat4("projection", projection);
 		ourShader.setMat4("view", view);
 
 		ourShader.setFloat("InterPolation", interpolationValue);
 		
-
 		// render container
 		glBindVertexArray(VAO);
 		
 		for (unsigned int i = 0; i < 10; i++) 
 		{
 			glm::mat4 model;
-			model = glm::translate(model, cubePositions[i]); // glm::vec3(-2.0f, 0.0f, -15.0f)
-			float angle{};
+			model = glm::translate(model, cubePositions[i]); 
+			float angle{20.0f * i};
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			
 			if (i % 3 == 0)
 			{
 				angle = (float)glfwGetTime() * 20.0f;
 				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			}
-
-			//float angle = 20.0f * i; // (float)glfwGetTime()
-			//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
-			//angle = 50.0f * i;
-			//model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.3f, 0.0f));
-			//angle = 4.0f * i;
-			//model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.0f, 0.5f));
 
 			ourShader.setMat4("model", model);
 
@@ -306,9 +290,6 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		
-		
-		
-
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
@@ -345,44 +326,33 @@ void processInput(GLFWwindow *window)
 		perspectiveView = false;
 
 
-	// move X
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		xPos += moveSpeed;
-
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		xPos -= moveSpeed;
-
-	// move Z
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		zPos += moveSpeed;
-
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		zPos -= moveSpeed;
-
-	// move Z
-	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-		yPos += moveSpeed;
-
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		yPos -= moveSpeed;
-
-
+	float cameraSpeed = moveSpeed * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboard(RIGHT, deltaTime);
+
+	
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		interpolationValue += 0.001f; // 0.01f is way to fast.. need to slow it down
+		interpolationValue += 1.0f * deltaTime; // 0.01f is way to fast.. need to slow it down
 		if (interpolationValue >= 1.0f) {
 			interpolationValue = 1.0f; // lets add a cap to it. It acts strange otherwise.. NOT GOOD
 		}
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		interpolationValue -= 0.001f;
+		interpolationValue -= 1.0f * deltaTime;
 		if (interpolationValue <= 0.0f) {
 			interpolationValue = 0.0f; // lets add a cap to it. Same as up key
 		}
 	}
-
+	
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -392,4 +362,28 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // reversed since y-coords go from bottom to top
+	
+	lastX = xpos;
+	lastY = ypos;
+	
+	camera.ProcessMouseMovement(xoffset, yoffset);
+	
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera.ProcessMouseScroll(yoffset);
 }
