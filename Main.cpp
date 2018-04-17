@@ -215,11 +215,9 @@ int main()
 	stbi_image_free(data);
 
 	// tell OpenGL for each sampler to which texture unit it belongs to (only has to be done once)
-	ourShader.use(); // dont forget to activate/use the shader before setting uniforms!
-					 // either set it manually like so:
+	ourShader.use();
+
 	ourShader.setInt("texture1", 0);
-	//glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
-	// or set it via the texture class
 	ourShader.setInt("texture2", 1);
 
 	// render loop
@@ -248,7 +246,6 @@ int main()
 
 		ourShader.use();
 
-		
 		glm::mat4 view;
 		glm::mat4 projection;
 
@@ -283,7 +280,7 @@ int main()
 		for (unsigned int i = 0; i < 10; i++) 
 		{
 			glm::mat4 model;
-			model = glm::translate(model, cubePositions[i]); // glm::vec3(-2.0f, 0.0f, -15.0f)
+			model = glm::translate(model, cubePositions[i]); 
 			float angle{20.0f * i};
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			
