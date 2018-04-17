@@ -27,12 +27,14 @@ float interpolationValue{ 1.0f }; // 0.2f
 bool perspectiveView{ true };
 
 float xPos{}, yPos{}, zPos{-3.0f};
-float moveSpeed{ 0.005f }; // 0.001f
+float moveSpeed{ 5.0f }; // 0.001f
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+float deltaTime = 0.0f; // time between current frame and last frame
+float lastFrame = 0.0f; // time of last frame
 
 int main()
 {
@@ -132,19 +134,6 @@ int main()
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-	glm::vec3 cubePositions2[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(1.0f,  5.0f, -15.0f),
-		glm::vec3(2.0f, -2.2f, -2.5f),
-		glm::vec3(3.0f, -2.0f, -12.3f),
-		glm::vec3(4.0f, -0.4f, -3.5f),
-		glm::vec3(5.0f,  3.0f, -7.5f),
-		glm::vec3(6.0f, -2.0f, -2.5f),
-		glm::vec3(7.0f,  2.0f, -2.5f),
-		glm::vec3(8.0f,  0.2f, -1.5f),
-		glm::vec3(9.0f,  1.0f, -1.5f)
-	};
-
 
 
 	unsigned int VBO, VAO;// , EBO;
@@ -237,6 +226,10 @@ int main()
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		// input
 		// -----
 		processInput(window);
@@ -278,6 +271,8 @@ int main()
 			projection = glm::ortho(left, right, bottom, top, nearPlane, farPlane);
 		}
 
+
+
 		//glm::vec3 cameraPos = glm::vec3(xPos, yPos, zPos);
 		//glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 		//glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -296,7 +291,6 @@ int main()
 						   glm::vec3(0.0f, 1.0f, 0.0f));*/
 
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		//view = glm::translate(view, cameraPos);
 
 		ourShader.setMat4("projection", projection);
 		ourShader.setMat4("view", view);
@@ -370,7 +364,7 @@ void processInput(GLFWwindow *window)
 		perspectiveView = false;
 
 
-	float cameraSpeed = moveSpeed;
+	float cameraSpeed = moveSpeed * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		cameraPos += cameraSpeed * cameraFront;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
