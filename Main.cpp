@@ -29,6 +29,11 @@ bool perspectiveView{ true };
 float xPos{}, yPos{}, zPos{-3.0f};
 float moveSpeed{ 0.005f }; // 0.001f
 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+
 int main()
 {
 	// glfw: initialize and configure
@@ -253,6 +258,7 @@ int main()
 		
 		glm::mat4 view;
 		glm::mat4 projection;
+
 		float fov = 45.0f;
 		float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
 		float nearPlane = 0.1f;
@@ -271,7 +277,26 @@ int main()
 		{
 			projection = glm::ortho(left, right, bottom, top, nearPlane, farPlane);
 		}
-		view = glm::translate(view, glm::vec3(xPos, yPos, zPos));
+
+		//glm::vec3 cameraPos = glm::vec3(xPos, yPos, zPos);
+		//glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+		//glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+		/*glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+		glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+		*/
+		/*float radius = 10.0f;
+		float camX = sin(glfwGetTime()) * radius;
+		float camZ = cos(glfwGetTime()) * radius;
+
+		view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), 
+						   glm::vec3(0.0f, 0.0f, 0.0f), 
+						   glm::vec3(0.0f, 1.0f, 0.0f));*/
+
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		//view = glm::translate(view, cameraPos);
 
 		ourShader.setMat4("projection", projection);
 		ourShader.setMat4("view", view);
@@ -345,6 +370,17 @@ void processInput(GLFWwindow *window)
 		perspectiveView = false;
 
 
+	float cameraSpeed = moveSpeed;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cameraPos += cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+	/*
 	// move X
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		xPos += moveSpeed;
@@ -382,7 +418,7 @@ void processInput(GLFWwindow *window)
 			interpolationValue = 0.0f; // lets add a cap to it. Same as up key
 		}
 	}
-
+	*/
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
