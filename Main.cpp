@@ -11,28 +11,28 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+// callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-
-
 const char * GAME_TITLE = "Learning OpenGL C++ <3";
 
-// default was 2.0f
+// extra controls
 float interpolationValue{ 1.0f }; // 0.2f
 bool perspectiveView{ true };
 
-float xPos{}, yPos{}, zPos{-3.0f};
+// global movement speed multiplier
 float moveSpeed{ 5.0f }; // 0.001f
 
+// camera
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+// timing
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f; // time of last frame
 
@@ -49,8 +49,8 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
 
-														 // glfw window creation
-														 // --------------------
+	// glfw window creation
+	// --------------------
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, GAME_TITLE, NULL, NULL);
 	if (window == NULL)
 	{
@@ -271,33 +271,12 @@ int main()
 			projection = glm::ortho(left, right, bottom, top, nearPlane, farPlane);
 		}
 
-
-
-		//glm::vec3 cameraPos = glm::vec3(xPos, yPos, zPos);
-		//glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-		//glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		/*glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-		glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-		glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-		glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-		*/
-		/*float radius = 10.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
-
-		view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), 
-						   glm::vec3(0.0f, 0.0f, 0.0f), 
-						   glm::vec3(0.0f, 1.0f, 0.0f));*/
-
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		ourShader.setMat4("projection", projection);
 		ourShader.setMat4("view", view);
-
 		ourShader.setFloat("InterPolation", interpolationValue);
 		
-
 		// render container
 		glBindVertexArray(VAO);
 		
@@ -305,19 +284,14 @@ int main()
 		{
 			glm::mat4 model;
 			model = glm::translate(model, cubePositions[i]); // glm::vec3(-2.0f, 0.0f, -15.0f)
-			float angle{};
+			float angle{20.0f * i};
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			
 			if (i % 3 == 0)
 			{
 				angle = (float)glfwGetTime() * 20.0f;
 				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			}
-
-			//float angle = 20.0f * i; // (float)glfwGetTime()
-			//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
-			//angle = 50.0f * i;
-			//model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.3f, 0.0f));
-			//angle = 4.0f * i;
-			//model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.0f, 0.5f));
 
 			ourShader.setMat4("model", model);
 
@@ -325,9 +299,6 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		
-		
-		
-
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
@@ -374,45 +345,23 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 
-	/*
-	// move X
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		xPos += moveSpeed;
-
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		xPos -= moveSpeed;
-
-	// move Z
+	
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		zPos += moveSpeed;
-
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		zPos -= moveSpeed;
-
-	// move Z
-	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-		yPos += moveSpeed;
-
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		yPos -= moveSpeed;
-
-
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		interpolationValue += 0.001f; // 0.01f is way to fast.. need to slow it down
+		interpolationValue += 1.0f * deltaTime; // 0.01f is way to fast.. need to slow it down
 		if (interpolationValue >= 1.0f) {
 			interpolationValue = 1.0f; // lets add a cap to it. It acts strange otherwise.. NOT GOOD
 		}
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		interpolationValue -= 0.001f;
+		interpolationValue -= 1.0f * deltaTime;
 		if (interpolationValue <= 0.0f) {
 			interpolationValue = 0.0f; // lets add a cap to it. Same as up key
 		}
 	}
-	*/
+	
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
