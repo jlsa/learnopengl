@@ -63,7 +63,10 @@ public:
 	// Returns the view matrix calculated using Euler Angles and the LookAt Matrix
 	glm::mat4 GetViewMatrix()
 	{
-		return glm::lookAt(Position, Position + Front, Up);
+		glm::vec3 position = Position;
+		glm::vec3 target = Position + Front;
+		glm::vec3 up = Up;
+		return GetLookAt(position, target, up);//glm::lookAt(Position, Position + Front, Up);
 	}
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -79,7 +82,7 @@ public:
 		if (direction == RIGHT)
 			Position += Right * velocity;
 
-		Position.y = 0.0f;
+		//Position.y = 0.0f;
 	}
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -128,6 +131,42 @@ private:
 		// Also re-calculate the Right and Up vector
 		Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 		Up = glm::normalize(glm::cross(Right, Front));
+	}
+
+	glm::mat4 GetLookAt(glm::vec3 position, glm::vec3 target, glm::vec3 worldUp)
+	{
+		// 1: position
+		
+		// 2: calculate cameraDirection
+		glm::vec3 zaxis{ glm::normalize(position - target) };
+
+		// 3: get positive right axis vector
+		glm::vec3 xaxis{ glm::normalize(glm::cross(glm::normalize(worldUp), zaxis)) };
+
+		// 4: calculate camera up vector
+		glm::vec3 yaxis{ glm::cross(zaxis, xaxis) };
+
+		// create translation and rotation matrix
+		// in glm we access elements as mat[col][row] due to column-major layout #TODO learn what this means.
+		glm::mat4 translation; // identity matrix by default
+		translation[3][0] = -position.x;
+		translation[3][1] = -position.y;
+		translation[3][2] = -position.z;
+
+		glm::mat4 rotation;
+		rotation[0][0] = xaxis.x; // first column first row
+		rotation[1][0] = xaxis.y;
+		rotation[2][0] = xaxis.z;
+		rotation[0][1] = yaxis.x; // first column second row
+		rotation[1][1] = yaxis.y;
+		rotation[2][1] = yaxis.z;
+		rotation[0][2] = zaxis.x; // first column third row
+		rotation[1][2] = zaxis.y;
+		rotation[2][2] = zaxis.z;
+
+		// return lookAt matrix combination of translation and rotation matrix
+		return rotation * translation; // Remember to read from right to left (first translation then rotation)
+		//return glm::lookAt(position, target, worldUp);
 	}
 };
 #endif
