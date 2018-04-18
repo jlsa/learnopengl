@@ -37,12 +37,12 @@ float lastX{ (float)SCR_WIDTH / 2.0f };
 float lastY{ (float)SCR_HEIGHT / 2.0f };
 
 // timing
-float deltaTime = 0.0f; // time between current frame and last frame
-float lastFrame = 0.0f; // time of last frame
+double deltaTime{}; // time between current frame and last frame
+double lastFrame{}; // time of last frame
 
 float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
-float nearPlane = 0.1f;
-float farPlane = 100.0f;
+float nearPlane{ 0.1f };
+float farPlane{ 100.0f };
 
 
 int main()
@@ -269,7 +269,7 @@ int main()
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
-		float currentFrame = glfwGetTime();
+		double currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
@@ -359,20 +359,20 @@ void processInput(GLFWwindow *window)
 		perspectiveView = false;
 
 
-	float cameraSpeed = moveSpeed * deltaTime;
+	float cameraSpeed = moveSpeed * (float)deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, deltaTime);
+		camera.ProcessKeyboard(FORWARD, (float)deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
+		camera.ProcessKeyboard(BACKWARD, (float)deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, deltaTime);
+		camera.ProcessKeyboard(LEFT, (float)deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, deltaTime);
+		camera.ProcessKeyboard(RIGHT, (float)deltaTime);
 
 	
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		interpolationValue += 1.0f * deltaTime; // 0.01f is way to fast.. need to slow it down
+		interpolationValue += 1.0f * (float)deltaTime; // 0.01f is way to fast.. need to slow it down
 		if (interpolationValue >= 1.0f) {
 			interpolationValue = 1.0f; // lets add a cap to it. It acts strange otherwise.. NOT GOOD
 		}
@@ -380,7 +380,7 @@ void processInput(GLFWwindow *window)
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		interpolationValue -= 1.0f * deltaTime;
+		interpolationValue -= 1.0f * (float)deltaTime;
 		if (interpolationValue <= 0.0f) {
 			interpolationValue = 0.0f; // lets add a cap to it. Same as up key
 		}
@@ -401,22 +401,22 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse)
 	{
-		lastX = xpos;
-		lastY = ypos;
+		lastX = (float)xpos;
+		lastY = (float)ypos;
 		firstMouse = false;
 	}
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // reversed since y-coords go from bottom to top
+	double xoffset = xpos - lastX;
+	double yoffset = lastY - ypos; // reversed since y-coords go from bottom to top
 	
-	lastX = xpos;
-	lastY = ypos;
+	lastX = (float)xpos;
+	lastY = (float)ypos;
 	
-	camera.ProcessMouseMovement(xoffset, yoffset);
+	camera.ProcessMouseMovement((float)xoffset, (float)yoffset);
 	
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera.ProcessMouseScroll(yoffset);
+	camera.ProcessMouseScroll((float)yoffset);
 }

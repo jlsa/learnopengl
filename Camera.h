@@ -63,7 +63,10 @@ public:
 	// Returns the view matrix calculated using Euler Angles and the LookAt Matrix
 	glm::mat4 GetViewMatrix()
 	{
-		return glm::lookAt(Position, Position + Front, Up);
+		glm::vec3 position = Position;
+		glm::vec3 target = Position + Front;
+		glm::vec3 up = Up;
+		return GetLookAt(position, target, up);//glm::lookAt(Position, Position + Front, Up);
 	}
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -128,6 +131,11 @@ private:
 		// Also re-calculate the Right and Up vector
 		Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 		Up = glm::normalize(glm::cross(Right, Front));
+	}
+
+	glm::mat4 GetLookAt(glm::vec3 position, glm::vec3 target, glm::vec3 worldUp)
+	{
+		return glm::lookAt(position, target, worldUp);
 	}
 };
 #endif
