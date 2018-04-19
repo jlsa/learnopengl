@@ -38,6 +38,12 @@
     <None Include="LightVertexShader.vs">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="LampFragmentShader.fs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="LampVertexShader.vs">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
