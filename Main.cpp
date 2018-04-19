@@ -44,7 +44,6 @@ float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
 float nearPlane{ 0.1f };
 float farPlane{ 100.0f };
 
-
 int main()
 {
 	// glfw: initialize and configure
@@ -88,53 +87,54 @@ int main()
 
 	Shader ourShader("VertexShader.vs", "FragmentShader.fs");
 
+	glm::vec3 localTransform = glm::vec3(0.0f, -1.5f, 0.0f);
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
-	float vertices2[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f
-	};
-
 	float vertices[] = {
+		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+
+		-0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+
+		-0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+
+		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+
+		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+
+		-0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
+		-0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
+	//};
+
+	//float vertices2[] = {
 		 0.0f,  1.0f,  0.0f,	1.0f, 1.0f,		0.5f, 0.5f, 0.5f,		// top (front)
 		-1.0f, -1.0f,  1.0f,	0.0f, 0.0f,		0.5f, 0.5f, 0.5f,		// left (front)
 		 1.0f, -1.0f,  1.0f,	1.0f, 0.0f,		0.5f, 0.5f, 0.5f,		// right (front)
@@ -163,7 +163,22 @@ int main()
 	};
 
 
+	float positionMultiplier = 2.5f;
+
 	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f * positionMultiplier,  0.0f * positionMultiplier,  0.0f * positionMultiplier),
+		glm::vec3(2.0f * positionMultiplier,  5.0f * positionMultiplier, -15.0f * positionMultiplier),
+		glm::vec3(-1.5f * positionMultiplier, -2.2f * positionMultiplier, -2.5f * positionMultiplier),
+		glm::vec3(-3.8f * positionMultiplier, -2.0f * positionMultiplier, -12.3f * positionMultiplier),
+		glm::vec3(2.4f * positionMultiplier, -0.4f * positionMultiplier, -3.5f * positionMultiplier),
+		glm::vec3(-1.7f * positionMultiplier,  3.0f * positionMultiplier, -7.5f * positionMultiplier),
+		glm::vec3(1.3f * positionMultiplier, -2.0f * positionMultiplier, -2.5f * positionMultiplier),
+		glm::vec3(1.5f * positionMultiplier,  2.0f * positionMultiplier, -2.5f * positionMultiplier),
+		glm::vec3(1.5f * positionMultiplier,  0.2f * positionMultiplier, -1.5f * positionMultiplier),
+		glm::vec3(-1.3f * positionMultiplier,  1.0f * positionMultiplier, -1.5f * positionMultiplier)
+	};
+
+	glm::vec3 cubePositions2[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
 		glm::vec3(2.0f,  5.0f, -15.0f),
 		glm::vec3(-1.5f, -2.2f, -2.5f),
@@ -308,7 +323,7 @@ int main()
 			glm::mat4 model;
 			model = glm::translate(model, cubePositions[i]); 
 			float angle{20.0f * i * (float)glfwGetTime()};
-			// angle = 0.0f;
+			//angle = 0.0f;
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			
 			if (i % 3 == 0)
