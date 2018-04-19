@@ -132,6 +132,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="FragmentShader.fs" />
+    <None Include="LampFragmentShader.fs" />
+    <None Include="LampVertexShader.vs" />
+    <None Include="LightFragmentShader.fs" />
+    <None Include="LightVertexShader.vs" />
     <None Include="VertexShader.vs" />
   </ItemGroup>
   <ItemGroup>
