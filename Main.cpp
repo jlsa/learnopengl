@@ -45,13 +45,16 @@ float nearPlane{ 0.1f };
 float farPlane{ 100.0f };
 
 glm::vec3 coral(1.0f, 0.5f, 0.31f);
+glm::vec3 black(0.0f, 0.0f, 0.0f);
+glm::vec3 dargGray(0.3f, 0.3f, 0.3f);
 glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
+
 int main()
 {
-	//backgroundColor = glm::vec4(coral, 1.0f);
+	backgroundColor = glm::vec4(dargGray, 1.0f);
 
 	glm::vec3 lightColor(1.0f, 1.0f, 1.0f); // 1.0f, 1.0f, 1.0f
 	glm::vec3 objectColor(1.0f, 0.5f, 0.31f);
@@ -105,7 +108,51 @@ int main()
 	glm::vec3 localTransform = glm::vec3(0.0f, 0.0f, 0.0f);
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
+	int verticesSize = 6;
 	float vertices[] = {
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+	};
+	float vertices3[] = {
 		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
 		 0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
 		 0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
@@ -201,8 +248,12 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	
+	// normal attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
 
 	unsigned int lightVAO;
 	glGenVertexArrays(1, &lightVAO);
@@ -210,7 +261,7 @@ int main()
 	// we only need to bind to the VBO, the container's VBO's data already contains the correct data
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	// set the vertex attributes (only position data for the lamp)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// render loop
@@ -234,6 +285,7 @@ int main()
 		ourShader.use();
 		ourShader.setVec3("objectColor", objectColor);
 		ourShader.setVec3("lightColor", lightColor);
+		ourShader.setVec3("lightPos", lightPos);
 
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), aspectRatio, nearPlane, farPlane);
 		glm::mat4 view = camera.GetViewMatrix();
@@ -244,18 +296,19 @@ int main()
 		// render container
 		glBindVertexArray(VAO);
 		glm::mat4 model;
-		for (unsigned int i = 0; i < 1; i++) 
+		for (unsigned int i = 0; i < 10; i++) 
 		{
 			model = glm::mat4();
-			model = glm::translate(model, cubePositions[i]); 
-			float angle{20.0f * i * (float)glfwGetTime()};
-			angle = 0.0f;
+			
+			float angle{ 20.0f * i * (float)glfwGetTime() };//* i + 1 };
+			//angle = 0.0f;
+			
+			model = glm::translate(model, cubePositions[i]);
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-
 			ourShader.setMat4("model", model);
 
 			// draw them sum'bitches
-			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / 8);
+			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
 		}
 
 		// draw the lamp object
@@ -269,7 +322,7 @@ int main()
 		lampShader.setMat4("model", model);
 
 		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / 8);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
 		
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -318,21 +371,28 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, (float)deltaTime);
 
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		lightPos.x -= 1.0f * (float)deltaTime;
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		lightPos.x += 1.0f * (float)deltaTime;
 	
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		interpolationValue += 1.0f * (float)deltaTime; // 0.01f is way to fast.. need to slow it down
+		lightPos.y += 1.0f * (float)deltaTime;
+		/*interpolationValue += 1.0f * (float)deltaTime; // 0.01f is way to fast.. need to slow it down
 		if (interpolationValue >= 1.0f) {
 			interpolationValue = 1.0f; // lets add a cap to it. It acts strange otherwise.. NOT GOOD
-		}
+		}*/
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		interpolationValue -= 1.0f * (float)deltaTime;
+		lightPos.y -= 1.0f * (float)deltaTime;
+		/*interpolationValue -= 1.0f * (float)deltaTime;
 		if (interpolationValue <= 0.0f) {
 			interpolationValue = 0.0f; // lets add a cap to it. Same as up key
-		}
+		}*/
 	}
 	
 }
