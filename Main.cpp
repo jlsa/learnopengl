@@ -377,6 +377,9 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		lightPos.x += 1.0f * (float)deltaTime;
 	
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		lightPos = camera.Position;
+
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		lightPos.y += 1.0f * (float)deltaTime;
