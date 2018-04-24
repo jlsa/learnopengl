@@ -272,6 +272,9 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		
+		//lightPos.x += sin(1.0f * deltaTime) * 2.0f;//1.0f + sin((float)glfwGetTime()) * 2.0f;
+		//lightPos.z += sin((float)glfwGetTime() / 2.0f) * 1.0f;
 		// input
 		// -----
 		processInput(window);
@@ -317,8 +320,14 @@ int main()
 		lampShader.setMat4("projection", projection);
 		lampShader.setMat4("view", view);
 
+		lightPos.x = sin(glfwGetTime()) * 2.5f;
+		lightPos.y = cos(glfwGetTime()) * 2.5f;
+		lightPos.z = cos(glfwGetTime()) * 2.5f;
+
 		model = glm::mat4();
 		model = glm::translate(model, lightPos);
+		float lightAngle{ 5.0f * (float)glfwGetTime() };
+		model = glm::rotate(model, lightAngle, glm::vec3(-1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
 		lampShader.setMat4("model", model);
 
