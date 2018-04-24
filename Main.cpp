@@ -12,6 +12,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+struct Material {
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	float shininess;
+};
+
+struct Light {
+	glm::vec3 position;
+
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+};
+
 // callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -47,9 +62,11 @@ float farPlane{ 100.0f };
 
 glm::vec3 coral(1.0f, 0.5f, 0.31f);
 glm::vec3 black(0.0f, 0.0f, 0.0f);
-glm::vec3 dargGray(0.3f, 0.3f, 0.3f);
+glm::vec3 darkGray(0.3f, 0.3f, 0.3f);
 glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
+
+Light light;
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 float specularStrength = 0.5f;
@@ -57,7 +74,73 @@ int specularPower = 2;
 
 int main()
 {
-	backgroundColor = glm::vec4(dargGray, 1.0f);
+	light.position = lightPos;
+	light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+	light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f); // darken the light a bit
+	light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	Material emeraldMat;
+	emeraldMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
+	emeraldMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
+	emeraldMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
+	emeraldMat.shininess = 0.6f;
+
+	Material jadeMat;
+	jadeMat.ambient = glm::vec3(0.135f, 0.2225f, 0.1575f);
+	jadeMat.diffuse = glm::vec3(0.54f, 0.89f, 0.63f);
+	jadeMat.specular = glm::vec3(0.316228f, 0.316228f, 0.316228f);
+	jadeMat.shininess = 0.1f;
+
+	Material obsidianMat;
+	obsidianMat.ambient = glm::vec3(0.05375f, 0.05f, 0.06625f);
+	obsidianMat.diffuse = glm::vec3(0.18275f, 0.17f, 0.22525f);
+	obsidianMat.specular = glm::vec3(0.332741f, 0.328634f, 0.346435f);
+	obsidianMat.shininess = 0.3f;
+
+	Material pearlMat;
+	pearlMat.ambient = glm::vec3(0.25f, 0.829f, 0.829f);
+	pearlMat.diffuse = glm::vec3(1.0f, 0.61424f, 0.07568f);
+	pearlMat.specular = glm::vec3(0.296648f, 0.296648f, 0.296648f);
+	pearlMat.shininess = 0.088f;
+
+	Material rubyMat;
+	rubyMat.ambient = glm::vec3(0.1745f, 0.01175f, 0.01175f);
+	rubyMat.diffuse = glm::vec3(0.61424f, 0.04136f, 0.04136f);
+	rubyMat.specular = glm::vec3(0.727811f, 0.626959f, 0.626959f);
+	rubyMat.shininess = 0.6f;
+
+	Material yellowRubberMat;
+	yellowRubberMat.ambient = glm::vec3(0.05f, 0.05f, 0.0f);
+	yellowRubberMat.diffuse = glm::vec3(0.5f, 0.5f, 0.4f);
+	yellowRubberMat.specular = glm::vec3(0.7f, 0.7f, 0.04f);
+	yellowRubberMat.shininess = 0.078125f;
+
+	Material yellowPlasticMat;
+	yellowPlasticMat.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+	yellowPlasticMat.diffuse = glm::vec3(0.5f, 0.5f, 0.0f);
+	yellowPlasticMat.specular = glm::vec3(0.60f, 0.60f, 0.50f);
+	yellowPlasticMat.shininess = 0.25f;
+
+	Material blackPlasticMat;
+	blackPlasticMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
+	blackPlasticMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
+	blackPlasticMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
+	blackPlasticMat.shininess = 0.6f;
+
+	Material bronzeMat;
+	bronzeMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
+	bronzeMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
+	bronzeMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
+	bronzeMat.shininess = 0.6f;
+
+	Material chromeMat;
+	chromeMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
+	chromeMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
+	chromeMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
+	chromeMat.shininess = 0.6f;
+
+
+	backgroundColor = glm::vec4(coral * darkGray, 1.0f);
 
 	glm::vec3 lightColor(1.0f, 1.0f, 1.0f); // 1.0f, 1.0f, 1.0f
 	glm::vec3 objectColor(1.0f, 0.5f, 0.31f);
@@ -105,7 +188,6 @@ int main()
 	Shader ourShader("LightVertexShader.vs", "LightFragmentShader.fs");
 	Shader lampShader("LampVertexShader.vs", "LampFragmentShader.fs");
 
-	glm::vec3 localTransform = glm::vec3(0.0f, 0.0f, 0.0f);
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	int verticesSize = 6;
@@ -152,49 +234,6 @@ int main()
 		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
-	float vertices3[] = {
-		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-
-		-0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-
-		-0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-
-		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-
-		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x, -0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x, -0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-
-		-0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  1.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		 0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  1.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x,  0.5f + localTransform.y,  0.5f + localTransform.z,  0.0f, 0.0f,	1.0f, 1.0f, 1.0f,
-		-0.5f + localTransform.x,  0.5f + localTransform.y, -0.5f + localTransform.z,  0.0f, 1.0f,	1.0f, 1.0f, 1.0f,
-	};
 
 	float vertices2[] = {
 		 0.0f,  1.0f,  0.0f,	1.0f, 1.0f,		0.5f, 0.5f, 0.5f,		// top (front)
@@ -235,6 +274,19 @@ int main()
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
+	Material materials[] = {
+		emeraldMat,
+		jadeMat,
+		obsidianMat,
+		pearlMat,
+		rubyMat,
+		yellowRubberMat,
+		yellowPlasticMat,
+		blackPlasticMat,
+		bronzeMat,
+		chromeMat
 	};
 
 	unsigned int VBO, VAO;
@@ -282,16 +334,21 @@ int main()
 		ourShader.use();
 		ourShader.setVec3("objectColor", objectColor);
 		ourShader.setVec3("lightColor", lightColor);
-		ourShader.setVec3("lightPos", lightPos);
+		ourShader.setVec3("lightPos", light.position);
 		ourShader.setVec3("viewPos", camera.Position);
 		ourShader.setFloat("specularStrength", specularStrength);
 		ourShader.setInt("specularPower", specularPower);
+
 
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), aspectRatio, nearPlane, farPlane);
 		glm::mat4 view = camera.GetViewMatrix();
 
 		ourShader.setMat4("projection", projection);
 		ourShader.setMat4("view", view);
+
+		ourShader.setVec3("light.ambient", light.ambient);
+		ourShader.setVec3("light.diffuse", light.diffuse);
+		ourShader.setVec3("light.specular", light.specular);
 
 		// render container
 		glBindVertexArray(VAO);
@@ -307,6 +364,12 @@ int main()
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			ourShader.setMat4("model", model);
 
+			// material
+			ourShader.setVec3("material.ambient", materials[i].ambient);
+			ourShader.setVec3("material.diffuse", materials[i].diffuse);
+			ourShader.setVec3("material.specular", materials[i].specular);
+			ourShader.setFloat("material.shininess", materials[i].shininess);
+
 			// draw them sum'bitches
 			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
 		}
@@ -316,12 +379,12 @@ int main()
 		lampShader.setMat4("projection", projection);
 		lampShader.setMat4("view", view);
 
-		lightPos.x = sin((float)glfwGetTime()) * 2.5f;
-		lightPos.y = cos((float)glfwGetTime()) * 2.5f;
-		lightPos.z = cos((float)glfwGetTime()) * 2.5f;
+		light.position.x = sin((float)glfwGetTime()) * 2.5f;
+		light.position.y = cos((float)glfwGetTime()) * 2.5f;
+		light.position.z = cos((float)glfwGetTime()) * 2.5f;
 
 		model = glm::mat4();
-		model = glm::translate(model, lightPos);
+		model = glm::translate(model, light.position);
 		float lightAngle{ 5.0f * (float)glfwGetTime() };
 		model = glm::rotate(model, lightAngle, glm::vec3(-1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
