@@ -17,6 +17,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -51,6 +52,8 @@ glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
+float specularStrength = 0.5f;
+int specularPower = 2;
 
 int main()
 {
@@ -59,9 +62,6 @@ int main()
 	glm::vec3 lightColor(1.0f, 1.0f, 1.0f); // 1.0f, 1.0f, 1.0f
 	glm::vec3 objectColor(1.0f, 0.5f, 0.31f);
 	glm::vec3 result = lightColor * objectColor; // = (0.0f, 0.5f, 0.0f);
-
-	//backgroundColor = glm::vec4(result, 1.0f);
-
 
 	// glfw: initialize and configure
 	// ------------------------------
@@ -87,7 +87,7 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
-
+	glfwSetKeyCallback(window, keyboard_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
 	// glad: load all OpenGL function pointers
@@ -272,9 +272,6 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		
-		//lightPos.x += sin(1.0f * deltaTime) * 2.0f;//1.0f + sin((float)glfwGetTime()) * 2.0f;
-		//lightPos.z += sin((float)glfwGetTime() / 2.0f) * 1.0f;
 		// input
 		// -----
 		processInput(window);
@@ -290,6 +287,8 @@ int main()
 		ourShader.setVec3("lightColor", lightColor);
 		ourShader.setVec3("lightPos", lightPos);
 		ourShader.setVec3("viewPos", camera.Position);
+		ourShader.setFloat("specularStrength", specularStrength);
+		ourShader.setInt("specularPower", specularPower);
 
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), aspectRatio, nearPlane, farPlane);
 		glm::mat4 view = camera.GetViewMatrix();
@@ -320,9 +319,9 @@ int main()
 		lampShader.setMat4("projection", projection);
 		lampShader.setMat4("view", view);
 
-		lightPos.x = sin(glfwGetTime()) * 2.5f;
-		lightPos.y = cos(glfwGetTime()) * 2.5f;
-		lightPos.z = cos(glfwGetTime()) * 2.5f;
+		lightPos.x = sin((float)glfwGetTime()) * 2.5f;
+		lightPos.y = cos((float)glfwGetTime()) * 2.5f;
+		lightPos.z = cos((float)glfwGetTime()) * 2.5f;
 
 		model = glm::mat4();
 		model = glm::translate(model, lightPos);
@@ -359,17 +358,13 @@ void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	
+	/*
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-		perspectiveView = true;
-
-	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
-		perspectiveView = false;
-
+	*/
 
 	float cameraSpeed = moveSpeed * (float)deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -382,32 +377,60 @@ void processInput(GLFWwindow *window)
 		camera.ProcessKeyboard(RIGHT, (float)deltaTime);
 
 
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	/*if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		lightPos.x -= 1.0f * (float)deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		lightPos.x += 1.0f * (float)deltaTime;
 	
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		lightPos = camera.Position;
-
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	{
-		lightPos.y += 1.0f * (float)deltaTime;
-		/*interpolationValue += 1.0f * (float)deltaTime; // 0.01f is way to fast.. need to slow it down
-		if (interpolationValue >= 1.0f) {
-			interpolationValue = 1.0f; // lets add a cap to it. It acts strange otherwise.. NOT GOOD
-		}*/
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		lightPos.y -= 1.0f * (float)deltaTime;
-		/*interpolationValue -= 1.0f * (float)deltaTime;
-		if (interpolationValue <= 0.0f) {
-			interpolationValue = 0.0f; // lets add a cap to it. Same as up key
-		}*/
-	}
+		*/
 	
+	
+}
+
+void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+	if (mods == 0) {
+		if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+			specularPower = 2;
+		if (key == GLFW_KEY_2 && action == GLFW_PRESS)
+			specularPower = 4;
+		if (key == GLFW_KEY_3 && action == GLFW_PRESS)
+			specularPower = 8;
+		if (key == GLFW_KEY_4 && action == GLFW_PRESS)
+			specularPower = 16;
+		if (key == GLFW_KEY_5 && action == GLFW_PRESS)
+			specularPower = 32;
+		if (key == GLFW_KEY_6 && action == GLFW_PRESS)
+			specularPower = 64;
+		if (key == GLFW_KEY_7 && action == GLFW_PRESS)
+			specularPower = 128;
+		if (key == GLFW_KEY_8 && action == GLFW_PRESS)
+			specularPower = 256;
+	}
+	else if (mods == 1) {
+		if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+			specularStrength = 0.1f;
+		if (key == GLFW_KEY_2 && action == GLFW_PRESS)
+			specularStrength = 0.2f;
+		if (key == GLFW_KEY_3 && action == GLFW_PRESS)
+			specularStrength = 0.3f;
+		if (key == GLFW_KEY_4 && action == GLFW_PRESS)
+			specularStrength = 0.4f;
+		if (key == GLFW_KEY_5 && action == GLFW_PRESS)
+			specularStrength = 0.5f;
+		if (key == GLFW_KEY_6 && action == GLFW_PRESS)
+			specularStrength = 0.6f;
+		if (key == GLFW_KEY_7 && action == GLFW_PRESS)
+			specularStrength = 0.7f;
+		if (key == GLFW_KEY_8 && action == GLFW_PRESS)
+			specularStrength = 0.8f;
+		if (key == GLFW_KEY_9 && action == GLFW_PRESS)
+			specularStrength = 0.9f;
+		if (key == GLFW_KEY_0 && action == GLFW_PRESS)
+			specularStrength = 1.0f;
+	}
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -440,5 +463,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+	/*if (yoffset > 0) {
+		specularStrength += 0.1f *(float)deltaTime;
+	}
+	else if (yoffset < 0) {
+		specularStrength -= 0.1f *(float)deltaTime;
+	}*/
 	camera.ProcessMouseScroll((float)yoffset);
 }
