@@ -286,6 +286,7 @@ int main()
 		ourShader.setVec3("objectColor", objectColor);
 		ourShader.setVec3("lightColor", lightColor);
 		ourShader.setVec3("lightPos", lightPos);
+		ourShader.setVec3("viewPos", camera.Position);
 
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), aspectRatio, nearPlane, farPlane);
 		glm::mat4 view = camera.GetViewMatrix();
