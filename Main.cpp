@@ -67,77 +67,76 @@ glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
 
 Light light;
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 float specularStrength = 0.5f;
 int specularPower = 2;
 
 int main()
 {
-	light.position = lightPos;
-	light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-	light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f); // darken the light a bit
+	light.position = glm::vec3(1.2f, 1.0f, 2.0f);
+	light.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+	light.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	Material emeraldMat;
 	emeraldMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
 	emeraldMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
 	emeraldMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
-	emeraldMat.shininess = 0.6f;
+	emeraldMat.shininess = 256.0f;
 
 	Material jadeMat;
 	jadeMat.ambient = glm::vec3(0.135f, 0.2225f, 0.1575f);
 	jadeMat.diffuse = glm::vec3(0.54f, 0.89f, 0.63f);
 	jadeMat.specular = glm::vec3(0.316228f, 0.316228f, 0.316228f);
-	jadeMat.shininess = 0.1f;
+	jadeMat.shininess = 32.0f;
 
 	Material obsidianMat;
 	obsidianMat.ambient = glm::vec3(0.05375f, 0.05f, 0.06625f);
 	obsidianMat.diffuse = glm::vec3(0.18275f, 0.17f, 0.22525f);
 	obsidianMat.specular = glm::vec3(0.332741f, 0.328634f, 0.346435f);
-	obsidianMat.shininess = 0.3f;
+	obsidianMat.shininess = 32.0f;
 
 	Material pearlMat;
 	pearlMat.ambient = glm::vec3(0.25f, 0.829f, 0.829f);
 	pearlMat.diffuse = glm::vec3(1.0f, 0.61424f, 0.07568f);
 	pearlMat.specular = glm::vec3(0.296648f, 0.296648f, 0.296648f);
-	pearlMat.shininess = 0.088f;
+	pearlMat.shininess = 32.0f;
 
 	Material rubyMat;
 	rubyMat.ambient = glm::vec3(0.1745f, 0.01175f, 0.01175f);
 	rubyMat.diffuse = glm::vec3(0.61424f, 0.04136f, 0.04136f);
 	rubyMat.specular = glm::vec3(0.727811f, 0.626959f, 0.626959f);
-	rubyMat.shininess = 0.6f;
+	rubyMat.shininess = 32.0f;
 
 	Material yellowRubberMat;
 	yellowRubberMat.ambient = glm::vec3(0.05f, 0.05f, 0.0f);
 	yellowRubberMat.diffuse = glm::vec3(0.5f, 0.5f, 0.4f);
 	yellowRubberMat.specular = glm::vec3(0.7f, 0.7f, 0.04f);
-	yellowRubberMat.shininess = 0.078125f;
+	yellowRubberMat.shininess = 32.0f;
 
 	Material yellowPlasticMat;
 	yellowPlasticMat.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
 	yellowPlasticMat.diffuse = glm::vec3(0.5f, 0.5f, 0.0f);
 	yellowPlasticMat.specular = glm::vec3(0.60f, 0.60f, 0.50f);
-	yellowPlasticMat.shininess = 0.25f;
+	yellowPlasticMat.shininess = 32.0f;
 
 	Material blackPlasticMat;
-	blackPlasticMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
-	blackPlasticMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
-	blackPlasticMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
-	blackPlasticMat.shininess = 0.6f;
+	blackPlasticMat.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+	blackPlasticMat.diffuse = glm::vec3(0.01f, 0.01f, 0.01f);
+	blackPlasticMat.specular = glm::vec3(0.50f, 0.50f, 0.50f);
+	blackPlasticMat.shininess = 4.0f;
 
 	Material bronzeMat;
 	bronzeMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
 	bronzeMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
 	bronzeMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
-	bronzeMat.shininess = 0.6f;
+	bronzeMat.shininess = 32.0f;
 
 	Material chromeMat;
-	chromeMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
-	chromeMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
-	chromeMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
-	chromeMat.shininess = 0.6f;
+	chromeMat.ambient = glm::vec3(0.0f, 0.1f, 0.06f);
+	chromeMat.diffuse = glm::vec3(0.0f, 0.50980392f, 0.50980392f);
+	chromeMat.specular = glm::vec3(0.50196078f, 0.50196078f, 0.50196078f);
+	chromeMat.shininess = 32.0f;
 
 
 	backgroundColor = glm::vec4(coral * darkGray, 1.0f);
@@ -330,6 +329,17 @@ int main()
 		glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glm::vec3 lightColor;
+		//lightColor.x = sin(glfwGetTime() * 2.0f);
+		//lightColor.y = sin(glfwGetTime() * 0.7f);
+		//lightColor.z = sin(glfwGetTime() * 1.3f);
+
+		//glm::vec3 diffuseColor = lightColor	  * glm::vec3(0.5f); // decrease the influence
+		//glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
+		
+		//light.ambient = ambientColor;
+		//light.diffuse = diffuseColor;
+
 		// activate shader
 		ourShader.use();
 		ourShader.setVec3("objectColor", objectColor);
@@ -353,25 +363,28 @@ int main()
 		// render container
 		glBindVertexArray(VAO);
 		glm::mat4 model;
-		for (unsigned int i = 0; i < 10; i++) 
+		for (unsigned int x = 0; x < 3; x++) 
 		{
-			model = glm::mat4();
-			
-			float angle{ 20.0f * i * (float)glfwGetTime() };//* i + 1 };
-			//angle = 0.0f;
-			
-			model = glm::translate(model, cubePositions[i]);
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			ourShader.setMat4("model", model);
+			for (unsigned int y = 0; y < 3; y++)
+			{
+				model = glm::mat4();
 
-			// material
-			ourShader.setVec3("material.ambient", materials[i].ambient);
-			ourShader.setVec3("material.diffuse", materials[i].diffuse);
-			ourShader.setVec3("material.specular", materials[i].specular);
-			ourShader.setFloat("material.shininess", materials[i].shininess);
+				float angle; // { 20.0f * i * (float)glfwGetTime() };//* i + 1 };
+				angle = 0.0f;
 
-			// draw them sum'bitches
-			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
+				model = glm::translate(model, glm::vec3(1.1f * x, 1.1f * y, 0.0f));//cubePositions[i]);
+				//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+				ourShader.setMat4("model", model);
+
+				// material
+				ourShader.setVec3("material.ambient", materials[x * 3 + y].ambient);
+				ourShader.setVec3("material.diffuse", materials[x * 3 + y].diffuse);
+				ourShader.setVec3("material.specular", materials[x * 3 + y].specular);
+				ourShader.setFloat("material.shininess", materials[x * 3 + y].shininess);
+
+				// draw them sum'bitches
+				glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
+			}
 		}
 
 		// draw the lamp object
@@ -381,7 +394,7 @@ int main()
 
 		light.position.x = sin((float)glfwGetTime()) * 2.5f;
 		light.position.y = cos((float)glfwGetTime()) * 2.5f;
-		light.position.z = cos((float)glfwGetTime()) * 2.5f;
+		//light.position.z = cos((float)glfwGetTime()) * 2.5f;
 
 		model = glm::mat4();
 		model = glm::translate(model, light.position);
@@ -451,45 +464,9 @@ void processInput(GLFWwindow *window)
 
 void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-	if (mods == 0) {
-		if (key == GLFW_KEY_1 && action == GLFW_PRESS)
-			specularPower = 2;
-		if (key == GLFW_KEY_2 && action == GLFW_PRESS)
-			specularPower = 4;
-		if (key == GLFW_KEY_3 && action == GLFW_PRESS)
-			specularPower = 8;
-		if (key == GLFW_KEY_4 && action == GLFW_PRESS)
-			specularPower = 16;
-		if (key == GLFW_KEY_5 && action == GLFW_PRESS)
-			specularPower = 32;
-		if (key == GLFW_KEY_6 && action == GLFW_PRESS)
-			specularPower = 64;
-		if (key == GLFW_KEY_7 && action == GLFW_PRESS)
-			specularPower = 128;
-		if (key == GLFW_KEY_8 && action == GLFW_PRESS)
-			specularPower = 256;
-	}
-	else if (mods == 1) {
-		if (key == GLFW_KEY_1 && action == GLFW_PRESS)
-			specularStrength = 0.1f;
-		if (key == GLFW_KEY_2 && action == GLFW_PRESS)
-			specularStrength = 0.2f;
-		if (key == GLFW_KEY_3 && action == GLFW_PRESS)
-			specularStrength = 0.3f;
-		if (key == GLFW_KEY_4 && action == GLFW_PRESS)
-			specularStrength = 0.4f;
-		if (key == GLFW_KEY_5 && action == GLFW_PRESS)
-			specularStrength = 0.5f;
-		if (key == GLFW_KEY_6 && action == GLFW_PRESS)
-			specularStrength = 0.6f;
-		if (key == GLFW_KEY_7 && action == GLFW_PRESS)
-			specularStrength = 0.7f;
-		if (key == GLFW_KEY_8 && action == GLFW_PRESS)
-			specularStrength = 0.8f;
-		if (key == GLFW_KEY_9 && action == GLFW_PRESS)
-			specularStrength = 0.9f;
-		if (key == GLFW_KEY_0 && action == GLFW_PRESS)
-			specularStrength = 1.0f;
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+	{
+		light.position = camera.Position;
 	}
 }
 
