@@ -57,13 +57,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Image.jpg">
+    <Image Include="Assets\Textures\awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="container.jpg">
+    <Image Include="Assets\Textures\Image.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="awesomeface.png">
+    <Image Include="Assets\Textures\container.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Textures\container2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Textures\container2_specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Image (3).jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
