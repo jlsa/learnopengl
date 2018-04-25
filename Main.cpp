@@ -247,12 +247,12 @@ int main()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-
 	unsigned int diffuseMap = LoadTexture("Assets/Textures/container2.png");
-
+	unsigned int specularMap = LoadTexture("Assets/Textures/container2_specular.png");
 	// shader configuration
 	ourShader.use();
 	ourShader.setInt("material.diffuse", 0);
+	ourShader.setInt("material.specular", 1);
 
 	// render loop
 	// -----------
@@ -296,6 +296,10 @@ int main()
 		// bind diffuse map
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+		// bind specular map
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularMap);
 
 		// draw the sum'bitch
 		glBindVertexArray(VAO);
