@@ -13,7 +13,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 struct Material {
-	glm::vec3 ambient;
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 	float shininess;
@@ -26,6 +25,15 @@ struct Light {
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 };
+
+struct Transform {
+	glm::vec3 position;
+	float angle;
+	glm::vec3 rotation;
+	glm::vec3 scale;
+};
+
+unsigned int LoadTexture(const char *path);
 
 // callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -62,88 +70,20 @@ float farPlane{ 100.0f };
 
 glm::vec3 coral(1.0f, 0.5f, 0.31f);
 glm::vec3 black(0.0f, 0.0f, 0.0f);
-glm::vec3 darkGray(0.3f, 0.3f, 0.3f);
+glm::vec3 darkGray(0.1f, 0.1f, 0.1f);
 glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
-
 Light light;
-
-float specularStrength = 0.5f;
-int specularPower = 2;
 
 int main()
 {
 	light.position = glm::vec3(1.2f, 1.0f, 2.0f);
-	light.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
-	light.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+	light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 	light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	Material emeraldMat;
-	emeraldMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
-	emeraldMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
-	emeraldMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
-	emeraldMat.shininess = 256.0f;
+	backgroundColor = glm::vec4(darkGray, 1.0f);
 
-	Material jadeMat;
-	jadeMat.ambient = glm::vec3(0.135f, 0.2225f, 0.1575f);
-	jadeMat.diffuse = glm::vec3(0.54f, 0.89f, 0.63f);
-	jadeMat.specular = glm::vec3(0.316228f, 0.316228f, 0.316228f);
-	jadeMat.shininess = 32.0f;
-
-	Material obsidianMat;
-	obsidianMat.ambient = glm::vec3(0.05375f, 0.05f, 0.06625f);
-	obsidianMat.diffuse = glm::vec3(0.18275f, 0.17f, 0.22525f);
-	obsidianMat.specular = glm::vec3(0.332741f, 0.328634f, 0.346435f);
-	obsidianMat.shininess = 32.0f;
-
-	Material pearlMat;
-	pearlMat.ambient = glm::vec3(0.25f, 0.829f, 0.829f);
-	pearlMat.diffuse = glm::vec3(1.0f, 0.61424f, 0.07568f);
-	pearlMat.specular = glm::vec3(0.296648f, 0.296648f, 0.296648f);
-	pearlMat.shininess = 32.0f;
-
-	Material rubyMat;
-	rubyMat.ambient = glm::vec3(0.1745f, 0.01175f, 0.01175f);
-	rubyMat.diffuse = glm::vec3(0.61424f, 0.04136f, 0.04136f);
-	rubyMat.specular = glm::vec3(0.727811f, 0.626959f, 0.626959f);
-	rubyMat.shininess = 32.0f;
-
-	Material yellowRubberMat;
-	yellowRubberMat.ambient = glm::vec3(0.05f, 0.05f, 0.0f);
-	yellowRubberMat.diffuse = glm::vec3(0.5f, 0.5f, 0.4f);
-	yellowRubberMat.specular = glm::vec3(0.7f, 0.7f, 0.04f);
-	yellowRubberMat.shininess = 32.0f;
-
-	Material yellowPlasticMat;
-	yellowPlasticMat.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
-	yellowPlasticMat.diffuse = glm::vec3(0.5f, 0.5f, 0.0f);
-	yellowPlasticMat.specular = glm::vec3(0.60f, 0.60f, 0.50f);
-	yellowPlasticMat.shininess = 32.0f;
-
-	Material blackPlasticMat;
-	blackPlasticMat.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
-	blackPlasticMat.diffuse = glm::vec3(0.01f, 0.01f, 0.01f);
-	blackPlasticMat.specular = glm::vec3(0.50f, 0.50f, 0.50f);
-	blackPlasticMat.shininess = 4.0f;
-
-	Material bronzeMat;
-	bronzeMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
-	bronzeMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
-	bronzeMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
-	bronzeMat.shininess = 32.0f;
-
-	Material chromeMat;
-	chromeMat.ambient = glm::vec3(0.0f, 0.1f, 0.06f);
-	chromeMat.diffuse = glm::vec3(0.0f, 0.50980392f, 0.50980392f);
-	chromeMat.specular = glm::vec3(0.50196078f, 0.50196078f, 0.50196078f);
-	chromeMat.shininess = 32.0f;
-
-
-	backgroundColor = glm::vec4(coral * darkGray, 1.0f);
-
-	glm::vec3 lightColor(1.0f, 1.0f, 1.0f); // 1.0f, 1.0f, 1.0f
-	glm::vec3 objectColor(1.0f, 0.5f, 0.31f);
-	glm::vec3 result = lightColor * objectColor; // = (0.0f, 0.5f, 0.0f);
 
 	// glfw: initialize and configure
 	// ------------------------------
@@ -189,49 +129,50 @@ int main()
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
-	int verticesSize = 6;
+	int verticesSize = 8;
 	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		// positions          // normals           // texture coords
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
 
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 	};
 
 	float vertices2[] = {
@@ -272,21 +213,12 @@ int main()
 		glm::vec3(1.3f, -2.0f, -2.5f),
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
+		glm::vec3(-1.3f,  1.0f, -1.5f),
 	};
 
-	Material materials[] = {
-		emeraldMat,
-		jadeMat,
-		obsidianMat,
-		pearlMat,
-		rubyMat,
-		yellowRubberMat,
-		yellowPlasticMat,
-		blackPlasticMat,
-		bronzeMat,
-		chromeMat
-	};
+	/*Transform transforms[] = {
+
+	};*/
 
 	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
@@ -300,8 +232,12 @@ int main()
 	glEnableVertexAttribArray(0);
 	
 	// normal attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// texture attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	unsigned int lightVAO;
 	glGenVertexArrays(1, &lightVAO);
@@ -311,6 +247,16 @@ int main()
 	// set the vertex attributes (only position data for the lamp)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	unsigned int diffuseMap = LoadTexture("Assets/Textures/container2.png");
+	unsigned int specularMap = LoadTexture("Assets/Textures/container2_specular.png");
+	unsigned int emissionMap = LoadTexture("Assets/Textures/matrix.jpg");
+
+	// shader configuration
+	ourShader.use();
+	ourShader.setInt("material.diffuse", 0);
+	ourShader.setInt("material.specular", 1);
+	ourShader.setInt("material.emission", 2);
 
 	// render loop
 	// -----------
@@ -329,71 +275,62 @@ int main()
 		glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::vec3 lightColor;
-		//lightColor.x = sin(glfwGetTime() * 2.0f);
-		//lightColor.y = sin(glfwGetTime() * 0.7f);
-		//lightColor.z = sin(glfwGetTime() * 1.3f);
-
-		//glm::vec3 diffuseColor = lightColor	  * glm::vec3(0.5f); // decrease the influence
-		//glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
-		
-		//light.ambient = ambientColor;
-		//light.diffuse = diffuseColor;
-
-		// activate shader
-		ourShader.use();
-		ourShader.setVec3("objectColor", objectColor);
-		ourShader.setVec3("lightColor", lightColor);
-		ourShader.setVec3("lightPos", light.position);
-		ourShader.setVec3("viewPos", camera.Position);
-		ourShader.setFloat("specularStrength", specularStrength);
-		ourShader.setInt("specularPower", specularPower);
-
-
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), aspectRatio, nearPlane, farPlane);
 		glm::mat4 view = camera.GetViewMatrix();
 
-		ourShader.setMat4("projection", projection);
-		ourShader.setMat4("view", view);
-
-		ourShader.setVec3("light.ambient", light.ambient);
-		ourShader.setVec3("light.diffuse", light.diffuse);
-		ourShader.setVec3("light.specular", light.specular);
-
-		// render container
-		glBindVertexArray(VAO);
 		glm::mat4 model;
-		for (unsigned int x = 0; x < 3; x++) 
-		{
-			for (unsigned int y = 0; y < 3; y++)
-			{
-				model = glm::mat4();
 
-				float angle; // { 20.0f * i * (float)glfwGetTime() };//* i + 1 };
-				angle = 0.0f;
+		for (int i = 0; i < 10; i++) {
+			ourShader.use();
+			ourShader.setVec3("light.position", light.position);
+			ourShader.setVec3("viewPos", camera.Position);
 
-				model = glm::translate(model, glm::vec3(1.1f * x, 1.1f * y, 0.0f));//cubePositions[i]);
-				//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-				ourShader.setMat4("model", model);
+			ourShader.setVec3("light.ambient", light.ambient);
+			ourShader.setVec3("light.diffuse", light.diffuse);
+			ourShader.setVec3("light.specular", light.specular);
 
-				// material
-				ourShader.setVec3("material.ambient", materials[x * 3 + y].ambient);
-				ourShader.setVec3("material.diffuse", materials[x * 3 + y].diffuse);
-				ourShader.setVec3("material.specular", materials[x * 3 + y].specular);
-				ourShader.setFloat("material.shininess", materials[x * 3 + y].shininess);
+			ourShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+			ourShader.setFloat("material.shininess", 64.0f);
 
-				// draw them sum'bitches
-				glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
-			}
+			ourShader.setFloat("time", (float)glfwGetTime());
+			
+
+			ourShader.setMat4("projection", projection);
+			ourShader.setMat4("view", view);
+
+			// world transformation
+			model = glm::mat4();
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 30.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			ourShader.setMat4("model", model);
+
+			// bind diffuse map
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+			// bind specular map
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, specularMap);
+
+			// bind emission map
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, emissionMap);
+
+			// draw the sum'bitch
+			glBindVertexArray(VAO);
+			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
 		}
+		
+		
 
 		// draw the lamp object
 		lampShader.use();
 		lampShader.setMat4("projection", projection);
 		lampShader.setMat4("view", view);
 
-		light.position.x = sin((float)glfwGetTime()) * 2.5f;
-		light.position.y = cos((float)glfwGetTime()) * 2.5f;
+		//light.position.x = sin((float)glfwGetTime()) * 2.5f;
+		//light.position.y = cos((float)glfwGetTime()) * 2.5f;
 		//light.position.z = cos((float)glfwGetTime()) * 2.5f;
 
 		model = glm::mat4();
@@ -507,4 +444,42 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 		specularStrength -= 0.1f *(float)deltaTime;
 	}*/
 	camera.ProcessMouseScroll((float)yoffset);
+}
+
+unsigned int LoadTexture(const char *path)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+
+	if (data)
+	{
+		GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "Texture failed to load at path: " << path << std::endl;
+		stbi_image_free(data);
+	}
+
+	return textureID;
 }
