@@ -78,5 +78,8 @@
     <Image Include="Assets\Textures\lighting_maps_specular_color.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Assets\Textures\matrix.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

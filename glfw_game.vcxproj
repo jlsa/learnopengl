@@ -151,6 +151,7 @@
     <Image Include="Assets\Textures\Image (3).jpg" />
     <Image Include="Assets\Textures\Image.jpg" />
     <Image Include="Assets\Textures\lighting_maps_specular_color.png" />
+    <Image Include="Assets\Textures\matrix.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

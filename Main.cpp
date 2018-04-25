@@ -26,6 +26,13 @@ struct Light {
 	glm::vec3 specular;
 };
 
+struct Transform {
+	glm::vec3 position;
+	float angle;
+	glm::vec3 rotation;
+	glm::vec3 scale;
+};
+
 unsigned int LoadTexture(const char *path);
 
 // callbacks
@@ -63,11 +70,11 @@ float farPlane{ 100.0f };
 
 glm::vec3 coral(1.0f, 0.5f, 0.31f);
 glm::vec3 black(0.0f, 0.0f, 0.0f);
-glm::vec3 darkGray(0.3f, 0.3f, 0.3f);
+glm::vec3 darkGray(0.1f, 0.1f, 0.1f);
 glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
-
 Light light;
+
 int main()
 {
 	light.position = glm::vec3(1.2f, 1.0f, 2.0f);
@@ -206,8 +213,12 @@ int main()
 		glm::vec3(1.3f, -2.0f, -2.5f),
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
+		glm::vec3(-1.3f,  1.0f, -1.5f),
 	};
+
+	/*Transform transforms[] = {
+
+	};*/
 
 	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
@@ -238,13 +249,14 @@ int main()
 	glEnableVertexAttribArray(0);
 
 	unsigned int diffuseMap = LoadTexture("Assets/Textures/container2.png");
-	//unsigned int specularMap = LoadTexture("Assets/Textures/container2_specular.png");
-	unsigned int specularMap = LoadTexture("Assets/Textures/lighting_maps_specular_color.png");
-	
+	unsigned int specularMap = LoadTexture("Assets/Textures/container2_specular.png");
+	unsigned int emissionMap = LoadTexture("Assets/Textures/matrix.jpg");
+
 	// shader configuration
 	ourShader.use();
 	ourShader.setInt("material.diffuse", 0);
 	ourShader.setInt("material.specular", 1);
+	ourShader.setInt("material.emission", 2);
 
 	// render loop
 	// -----------
@@ -263,39 +275,53 @@ int main()
 		glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-		ourShader.use();
-		ourShader.setVec3("light.position", light.position);
-		ourShader.setVec3("viewPos", camera.Position);
-
-		ourShader.setVec3("light.ambient", light.ambient);
-		ourShader.setVec3("light.diffuse", light.diffuse);
-		ourShader.setVec3("light.specular", light.specular);
-
-		ourShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-		ourShader.setFloat("material.shininess", 64.0f);
-
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), aspectRatio, nearPlane, farPlane);
 		glm::mat4 view = camera.GetViewMatrix();
 
-		ourShader.setMat4("projection", projection);
-		ourShader.setMat4("view", view);
-
-		// world transformation
 		glm::mat4 model;
-		ourShader.setMat4("model", model);
+
+		for (int i = 0; i < 10; i++) {
+			ourShader.use();
+			ourShader.setVec3("light.position", light.position);
+			ourShader.setVec3("viewPos", camera.Position);
+
+			ourShader.setVec3("light.ambient", light.ambient);
+			ourShader.setVec3("light.diffuse", light.diffuse);
+			ourShader.setVec3("light.specular", light.specular);
+
+			ourShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+			ourShader.setFloat("material.shininess", 64.0f);
+
+			ourShader.setFloat("time", (float)glfwGetTime());
+			
+
+			ourShader.setMat4("projection", projection);
+			ourShader.setMat4("view", view);
+
+			// world transformation
+			model = glm::mat4();
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 30.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			ourShader.setMat4("model", model);
+
+			// bind diffuse map
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+			// bind specular map
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, specularMap);
+
+			// bind emission map
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, emissionMap);
+
+			// draw the sum'bitch
+			glBindVertexArray(VAO);
+			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
+		}
 		
-		// bind diffuse map
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffuseMap);
-
-		// bind specular map
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, specularMap);
-
-		// draw the sum'bitch
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
 		
 
 		// draw the lamp object
