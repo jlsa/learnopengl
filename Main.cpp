@@ -68,10 +68,6 @@ glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
 
 Light light;
-
-float specularStrength = 0.5f;
-int specularPower = 2;
-
 int main()
 {
 	light.position = glm::vec3(1.2f, 1.0f, 2.0f);
@@ -79,14 +75,8 @@ int main()
 	light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 	light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	
+	backgroundColor = glm::vec4(darkGray, 1.0f);
 
-
-	backgroundColor = glm::vec4(coral * darkGray, 1.0f);
-
-	glm::vec3 lightColor(1.0f, 1.0f, 1.0f); // 1.0f, 1.0f, 1.0f
-	glm::vec3 objectColor(1.0f, 0.5f, 0.31f);
-	glm::vec3 result = lightColor * objectColor; // = (0.0f, 0.5f, 0.0f);
 
 	// glfw: initialize and configure
 	// ------------------------------
