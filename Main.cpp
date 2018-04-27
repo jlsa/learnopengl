@@ -43,6 +43,7 @@ struct SpotLight {
 	glm::vec3 position;
 	glm::vec3 direction;
 	float cutOff;
+	float outerCutOff;
 
 	glm::vec3 ambient;
 	glm::vec3 diffuse;
@@ -122,6 +123,7 @@ int main()
 	light.linear	= 0.09f;//0.09f;
 	light.quadratic = 0.032f;// 0.032f;
 	light.cutOff	= glm::cos(glm::radians(12.5f));
+	light.outerCutOff = glm::cos(glm::radians(17.5f));
 
 
 	backgroundColor = glm::vec4(darkGray, 1.0f);
@@ -329,7 +331,23 @@ int main()
 			ourShader.setVec3("viewPos", camera.Position);
 			// ourShader.setVec3("light.position", light.position);
 
-			ourShader.setVec3("light.ambient", light.ambient);
+			ourShader.setVec3("light.position", camera.Position);
+			ourShader.setVec3("light.direction", camera.Front);
+			ourShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+			ourShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+			ourShader.setVec3("viewPos", camera.Position);
+
+			// light properties
+			ourShader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f);
+			// we configure the diffuse intensity slightly higher; the right lighting conditions differ with each lighting method and environment.
+			// each environment and lighting type requires some tweaking to get the best out of your environment.
+			ourShader.setVec3("light.diffuse", 0.8f, 0.8f, 0.8f);
+			ourShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+			ourShader.setFloat("light.constant", 1.0f);
+			ourShader.setFloat("light.linear", 0.09f);
+			ourShader.setFloat("light.quadratic", 0.032f);
+
+			/*ourShader.setVec3("light.ambient", light.ambient);
 			ourShader.setVec3("light.diffuse", light.diffuse);
 			ourShader.setVec3("light.specular", light.specular);
 
@@ -340,12 +358,14 @@ int main()
 			ourShader.setVec3("light.position", camera.Position);
 			ourShader.setVec3("light.direction", camera.Front);
 			ourShader.setFloat("light.cutOff", light.cutOff);
+			ourShader.setFloat("light.outerCutOff", light.outerCutOff);
 
+			
+			*/
 			ourShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
 			ourShader.setFloat("material.shininess", 64.0f);
 
 			ourShader.setFloat("time", (float)glfwGetTime());
-			
 
 			ourShader.setMat4("projection", projection);
 			ourShader.setMat4("view", view);
@@ -374,7 +394,7 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
 		}
 		
-		
+		/*
 
 		// draw the lamp object
 		lampShader.use();
@@ -394,7 +414,7 @@ int main()
 
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
-
+		*/
 		
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
