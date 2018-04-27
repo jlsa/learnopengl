@@ -18,6 +18,15 @@ struct Material {
 	float shininess;
 };
 
+
+struct DirectionalLight {
+	glm::vec3 direction;
+	glm::vec3 position;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+};
+
 struct Light {
 	glm::vec3 position;
 
@@ -73,11 +82,12 @@ glm::vec3 black(0.0f, 0.0f, 0.0f);
 glm::vec3 darkGray(0.1f, 0.1f, 0.1f);
 glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
-Light light;
+DirectionalLight light;
 
 int main()
 {
 	light.position = glm::vec3(1.2f, 1.0f, 2.0f);
+	light.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 	light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
 	light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 	light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -213,7 +223,7 @@ int main()
 		glm::vec3(1.3f, -2.0f, -2.5f),
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
 	/*Transform transforms[] = {
@@ -280,9 +290,10 @@ int main()
 
 		glm::mat4 model;
 
-		for (int i = 0; i < 10; i++) {
+		for (unsigned int i = 0; i < 10; i++) {
 			ourShader.use();
 			ourShader.setVec3("light.position", light.position);
+			ourShader.setVec3("light.direction", light.direction);
 			ourShader.setVec3("viewPos", camera.Position);
 
 			ourShader.setVec3("light.ambient", light.ambient);
@@ -301,7 +312,7 @@ int main()
 			// world transformation
 			model = glm::mat4();
 			model = glm::translate(model, cubePositions[i]);
-			float angle = 30.0f * i;
+			float angle = 20.0f * i + ((float)glfwGetTime() * 50.0f);
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			ourShader.setMat4("model", model);
 

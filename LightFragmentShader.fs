@@ -17,24 +17,34 @@ struct Light {
 	vec3 specular;
 };
 
+struct DirectionalLight {
+	vec3 direction;
+	vec3 position;
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+};
+
 in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
 
 uniform Material material;
-uniform Light light;
+uniform DirectionalLight light;
 uniform vec3 viewPos;
 
 uniform float time;
 
 void main()
 {
+	
 	// ambient
 	vec3 ambient = light.ambient * texture(material.diffuse, TexCoords).rgb;
 
 	// diffuse
 	vec3 norm = normalize(Normal);
-	vec3 lightDir = normalize(light.position - FragPos);
+	vec3 lightDir = normalize(-light.direction);
+	//vec3 lightDir = normalize(light.position - FragPos);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;
 
@@ -51,11 +61,11 @@ void main()
 	if (texture(material.specular, TexCoords).r == 0.0)
 	{
 		// apply emission texture
-		emission = texture(material.emission, TexCoords).rgb;
+		//emission = texture(material.emission, TexCoords).rgb;
 
 		// some extra fun stuff with "time uniform"
-		emission = texture(material.emission, TexCoords + vec2(0.0, time)).rgb; // moving
-		emission = emission * (sin(time) * 0.5 + 0.5) * 2.0;
+		//emission = texture(material.emission, TexCoords + vec2(0.0, time)).rgb; // moving
+		//emission = emission * (sin(time) * 0.5 + 0.5) * 2.0;
 	}
 	
 
