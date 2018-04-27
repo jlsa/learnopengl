@@ -39,6 +39,20 @@ struct PointLight {
 	float quadratic;
 };
 
+struct SpotLight {
+	glm::vec3 position;
+	glm::vec3 direction;
+	float cutOff;
+
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+
+	float constant;
+	float linear;
+	float quadratic;
+};
+
 struct Light {
 	glm::vec3 position;
 
@@ -94,7 +108,7 @@ glm::vec3 black(0.0f, 0.0f, 0.0f);
 glm::vec3 darkGray(0.1f, 0.1f, 0.1f);
 glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
-PointLight light;
+SpotLight light;
 
 int main()
 {
@@ -105,8 +119,9 @@ int main()
 	light.specular	= glm::vec3(1.0f, 1.0f, 1.0f);
 
 	light.constant	= 1.0f;
-	light.linear	= 0.14;//0.09f;
-	light.quadratic = 0.07;// 0.032f;
+	light.linear	= 0.09f;//0.09f;
+	light.quadratic = 0.032f;// 0.032f;
+	light.cutOff	= glm::cos(glm::radians(12.5f));
 
 
 	backgroundColor = glm::vec4(darkGray, 1.0f);
@@ -312,7 +327,7 @@ int main()
 			
 			// ourShader.setVec3("light.direction", light.direction);
 			ourShader.setVec3("viewPos", camera.Position);
-			ourShader.setVec3("light.position", light.position);
+			// ourShader.setVec3("light.position", light.position);
 
 			ourShader.setVec3("light.ambient", light.ambient);
 			ourShader.setVec3("light.diffuse", light.diffuse);
@@ -321,6 +336,10 @@ int main()
 			ourShader.setFloat("light.constant", light.constant);
 			ourShader.setFloat("light.linear", light.linear);
 			ourShader.setFloat("light.quadratic", light.quadratic);
+
+			ourShader.setVec3("light.position", camera.Position);
+			ourShader.setVec3("light.direction", camera.Front);
+			ourShader.setFloat("light.cutOff", light.cutOff);
 
 			ourShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
 			ourShader.setFloat("material.shininess", 64.0f);
