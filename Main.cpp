@@ -18,6 +18,42 @@ struct Material {
 	float shininess;
 };
 
+
+struct DirectionalLight {
+	glm::vec3 direction;
+	glm::vec3 position;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+};
+
+struct PointLight {
+	glm::vec3 position;
+
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+
+	float constant;
+	float linear;
+	float quadratic;
+};
+
+struct SpotLight {
+	glm::vec3 position;
+	glm::vec3 direction;
+	float cutOff;
+	float outerCutOff;
+
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+
+	float constant;
+	float linear;
+	float quadratic;
+};
+
 struct Light {
 	glm::vec3 position;
 
@@ -73,14 +109,22 @@ glm::vec3 black(0.0f, 0.0f, 0.0f);
 glm::vec3 darkGray(0.1f, 0.1f, 0.1f);
 glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
-Light light;
+SpotLight light;
 
 int main()
 {
-	light.position = glm::vec3(1.2f, 1.0f, 2.0f);
-	light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-	light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-	light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	light.position	= glm::vec3(1.2f, 1.0f, 2.0f);
+	// light.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+	light.ambient	= glm::vec3(0.2f, 0.2f, 0.2f);
+	light.diffuse	= glm::vec3(0.345f, 0.543f, 0.876f);
+	light.specular	= glm::vec3(1.0f, 1.0f, 1.0f);
+
+	light.constant	= 1.0f;
+	light.linear	= 0.09f;//0.09f;
+	light.quadratic = 0.032f;// 0.032f;
+	light.cutOff	= glm::cos(glm::radians(12.5f));
+	light.outerCutOff = glm::cos(glm::radians(17.5f));
+
 
 	backgroundColor = glm::vec4(darkGray, 1.0f);
 
@@ -213,7 +257,7 @@ int main()
 		glm::vec3(1.3f, -2.0f, -2.5f),
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
 	/*Transform transforms[] = {
@@ -280,20 +324,48 @@ int main()
 
 		glm::mat4 model;
 
-		for (int i = 0; i < 10; i++) {
+		for (unsigned int i = 0; i < 10; i++) {
 			ourShader.use();
-			ourShader.setVec3("light.position", light.position);
+			
+			// ourShader.setVec3("light.direction", light.direction);
+			ourShader.setVec3("viewPos", camera.Position);
+			// ourShader.setVec3("light.position", light.position);
+
+			ourShader.setVec3("light.position", camera.Position);
+			ourShader.setVec3("light.direction", camera.Front);
+			ourShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+			ourShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 			ourShader.setVec3("viewPos", camera.Position);
 
-			ourShader.setVec3("light.ambient", light.ambient);
+			// light properties
+			ourShader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f);
+			// we configure the diffuse intensity slightly higher; the right lighting conditions differ with each lighting method and environment.
+			// each environment and lighting type requires some tweaking to get the best out of your environment.
+			ourShader.setVec3("light.diffuse", 0.8f, 0.8f, 0.8f);
+			ourShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+			ourShader.setFloat("light.constant", 1.0f);
+			ourShader.setFloat("light.linear", 0.09f);
+			ourShader.setFloat("light.quadratic", 0.032f);
+
+			/*ourShader.setVec3("light.ambient", light.ambient);
 			ourShader.setVec3("light.diffuse", light.diffuse);
 			ourShader.setVec3("light.specular", light.specular);
 
+			ourShader.setFloat("light.constant", light.constant);
+			ourShader.setFloat("light.linear", light.linear);
+			ourShader.setFloat("light.quadratic", light.quadratic);
+
+			ourShader.setVec3("light.position", camera.Position);
+			ourShader.setVec3("light.direction", camera.Front);
+			ourShader.setFloat("light.cutOff", light.cutOff);
+			ourShader.setFloat("light.outerCutOff", light.outerCutOff);
+
+			
+			*/
 			ourShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
 			ourShader.setFloat("material.shininess", 64.0f);
 
 			ourShader.setFloat("time", (float)glfwGetTime());
-			
 
 			ourShader.setMat4("projection", projection);
 			ourShader.setMat4("view", view);
@@ -301,7 +373,7 @@ int main()
 			// world transformation
 			model = glm::mat4();
 			model = glm::translate(model, cubePositions[i]);
-			float angle = 30.0f * i;
+			float angle = 20.0f * i + ((float)glfwGetTime() * 50.0f);
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			ourShader.setMat4("model", model);
 
@@ -322,7 +394,7 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
 		}
 		
-		
+		/*
 
 		// draw the lamp object
 		lampShader.use();
@@ -342,6 +414,7 @@ int main()
 
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
+		*/
 		
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
