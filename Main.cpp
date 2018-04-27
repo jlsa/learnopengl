@@ -95,7 +95,6 @@ glm::vec3 darkGray(0.1f, 0.1f, 0.1f);
 glm::vec4 backgroundColor(0.694f, 0.878f, 0.682f, 1.0f);
 
 PointLight light;
-PointLight light2;
 
 int main()
 {
@@ -108,17 +107,6 @@ int main()
 	light.constant	= 1.0f;
 	light.linear	= 0.14;//0.09f;
 	light.quadratic = 0.07;// 0.032f;
-
-
-	light2.position = glm::vec3(5.0f, -1.0f, 2.0f);
-	// light.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
-	light2.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-	light2.diffuse = glm::vec3(0.66f, 0.9f, 0.6f);
-	light2.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-
-	light2.constant = 1.0f;
-	light2.linear = 0.014f;//0.09f;
-	light2.quadratic = 0.0007f;// 0.032f;
 
 
 	backgroundColor = glm::vec4(darkGray, 1.0f);
@@ -334,19 +322,6 @@ int main()
 			ourShader.setFloat("light.linear", light.linear);
 			ourShader.setFloat("light.quadratic", light.quadratic);
 
-
-			ourShader.setVec3("light2.position", light2.position);
-
-			ourShader.setVec3("light2.ambient", light2.ambient);
-			ourShader.setVec3("light2.diffuse", light2.diffuse);
-			ourShader.setVec3("light2.specular", light2.specular);
-
-			ourShader.setFloat("light2.constant", light2.constant);
-			ourShader.setFloat("light2.linear", light2.linear);
-			ourShader.setFloat("light2.quadratic", light2.quadratic);
-
-
-
 			ourShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
 			ourShader.setFloat("material.shininess", 64.0f);
 
@@ -400,27 +375,6 @@ int main()
 
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
-
-
-		// draw the lamp object
-		lampShader.use();
-		lampShader.setMat4("projection", projection);
-		lampShader.setMat4("view", view);
-
-		//light.position.x = sin((float)glfwGetTime()) * 2.5f;
-		//light.position.y = cos((float)glfwGetTime()) * 2.5f;
-		//light.position.z = cos((float)glfwGetTime()) * 2.5f;
-
-		model = glm::mat4();
-		model = glm::translate(model, light2.position);
-		lightAngle = 5.0f * (float)glfwGetTime();
-		model = glm::rotate(model, lightAngle, glm::vec3(-1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-		lampShader.setMat4("model", model);
-
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / verticesSize);
-
 
 		
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
