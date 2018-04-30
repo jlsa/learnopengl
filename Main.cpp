@@ -127,7 +127,7 @@ int main()
 	// directional light
 	directionalLight.direction = glm::vec3(-0.2f, 10.0f, -0.3f);
 	directionalLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f); 
-	directionalLight.diffuse = color::lightblue;
+	directionalLight.diffuse = color::darkmagenta;
 	directionalLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
 	// point lights
