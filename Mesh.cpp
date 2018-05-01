@@ -47,6 +47,14 @@ void Mesh::Draw(Shader shader)
 		// and finally bind the texture
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
+
+	// draw mesh
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	// always good practice to set everything back to default once configured;
+	glActiveTexture(GL_TEXTURE0);
 }
 
 Mesh::~Mesh()

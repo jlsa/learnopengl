@@ -50,6 +50,7 @@
     <None Include="LampVertexShader.vs">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="Assets\Models\suzanne\suzanne.obj" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

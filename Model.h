@@ -27,6 +27,7 @@ public:
 	Model(std::string const &path, bool gamma = false)
 		: gammaCorrection(gamma)
 	{
+		//std::cout << path << std::endl;
 		loadModel(path);
 	}
 	~Model();
