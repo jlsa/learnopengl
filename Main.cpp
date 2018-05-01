@@ -1,18 +1,17 @@
 #include <glad/glad.h>
 #include <glfw3.h>
 
-#include "Shader.h"
-#include "Camera.h"
-
-#include <iostream>
-
-#include "stb_image.h"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Color.h"
+#include "Shader.h"
+#include "Camera.h"
+#include "Model.h"
+
+#include <iostream>
+
 
 struct Material {
 	glm::vec3 diffuse;
@@ -127,7 +126,7 @@ int main()
 	// directional light
 	directionalLight.direction = glm::vec3(-0.2f, 10.0f, -0.3f);
 	directionalLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f); 
-	directionalLight.diffuse = color::lightblue;
+	directionalLight.diffuse = color::darkmagenta;
 	directionalLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
 	// point lights
@@ -176,9 +175,6 @@ int main()
 	spotLight.outerCutOff = glm::cos(glm::radians(15.0f));
 
 
-	
-
-
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
@@ -221,6 +217,10 @@ int main()
 	Shader shader("LightVertexShader.vs", "LightFragmentShader.fs");
 	Shader lampShader("LampVertexShader.vs", "LampFragmentShader.fs");
 
+	Model nanosuit("Assets/Models/nanosuit/nanosuit.obj");
+	Model suzanne("Assets/Models/suzanne/suzanne.obj");
+
+	
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	int verticesSize = 8;
@@ -309,54 +309,19 @@ int main()
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
-
-	/*Transform transforms[] = {
-
-	};*/
+	
 
 	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
 	
-	// normal attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	// texture attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	unsigned int lightVAO;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
-	// we only need to bind to the VBO, the container's VBO's data already contains the correct data
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// set the vertex attributes (only position data for the lamp)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, verticesSize * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	unsigned int diffuseMap = LoadTexture("Assets/Textures/container2.png");
-	unsigned int specularMap = LoadTexture("Assets/Textures/container2_specular.png");
-
-	// shader configuration
-	shader.use();
-	shader.setInt("material.diffuse", 0);
-	shader.setInt("material.specular", 1);
-
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
 		// per-frame time logic
 		// --------------------
-		float currentFrame = glfwGetTime();
+		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
@@ -369,11 +334,30 @@ int main()
 		glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// be sure to activate shader when setting uniforms/drawing objects
 		shader.use();
+		// view/projection transformations
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+		shader.setMat4("projection", projection);
+		shader.setMat4("view", view);
+
+		// render the loaded model
+		glm::mat4 model;
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				model = glm::mat4();
+				float angle = (i * j) * 20.0f;
+				model = glm::translate(model, glm::vec3(0.8f * i, -0.5f, 0.8f * j));
+				model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+				//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+				shader.setMat4("model", model);
+				nanosuit.Draw(shader);
+			}
+		}
+
 		shader.setVec3("viewPos", camera.Position);
 		shader.setFloat("material.shininess", 32.0f);
-
+		
 		/*
 		Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
 		the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
@@ -403,49 +387,19 @@ int main()
 		shader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
 		shader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
 		shader.setFloat("spotLight.constant", 1.0f);
-		shader.setFloat("spotLight.linear", 0.09);
-		shader.setFloat("spotLight.quadratic", 0.032);
+		shader.setFloat("spotLight.linear", 0.09f);
+		shader.setFloat("spotLight.quadratic", 0.032f);
 		shader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
 		shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
-
-		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
-		shader.setMat4("projection", projection);
-		shader.setMat4("view", view);
-
-		// world transformation
-		glm::mat4 model;
-		shader.setMat4("model", model);
-
-		// bind diffuse map
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffuseMap);
-		// bind specular map
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, specularMap);
-
-		// render containers
-		glBindVertexArray(VAO);
-		for (unsigned int i = 0; i < 10; i++)
-		{
-			// calculate the model matrix for each object and pass it to shader before drawing
-			glm::mat4 model;
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			shader.setMat4("model", model);
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
+		
+		shader.setBool("useSpotLight", true);
+		
 		// also draw the lamp object(s)
 		lampShader.use();
 		lampShader.setMat4("projection", projection);
 		lampShader.setMat4("view", view);
 
 		// we now draw as many light bulbs as we have point lights.
-		glBindVertexArray(lightVAO);
 		for (unsigned int i = 0; i < 4; i++)
 		{
 			model = glm::mat4();
@@ -453,7 +407,7 @@ int main()
 			model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
 			lampShader.setMat4("model", model);
 			lampShader.setVec3("color", pointLights[i].diffuse);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+			suzanne.Draw(lampShader);
 		}
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -464,9 +418,9 @@ int main()
 
 	// optional: de-allocate all resources once they've outlived their purpose:
 	// ------------------------------------------------------------------------
-	glDeleteVertexArrays(1, &VAO); // currently 
-	glDeleteVertexArrays(1, &lightVAO);
-	glDeleteBuffers(1, &VBO);
+	//glDeleteVertexArrays(1, &VAO); // currently 
+	//glDeleteVertexArrays(1, &lightVAO);
+	//glDeleteBuffers(1, &VBO);
 	//glDeleteBuffers(1, &EBO);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
