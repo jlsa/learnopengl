@@ -131,20 +131,21 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
 		{
 			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
 		}
+		if (mesh->HasTangentsAndBitangents()) {
+			// tangent
+			glm::vec3 tangent;
+			tangent.x = mesh->mTangents[i].x;
+			tangent.y = mesh->mTangents[i].y;
+			tangent.z = mesh->mTangents[i].z;
+			vertex.Tangent = tangent;
 
-		// tangent
-		glm::vec3 tangent;
-		tangent.x = mesh->mTangents[i].x;
-		tangent.y = mesh->mTangents[i].y;
-		tangent.z = mesh->mTangents[i].z;
-		vertex.Tangent = tangent;
+			// bitangent
+			glm::vec3 bitangent;
+			bitangent.x = mesh->mBitangents[i].x;
+			bitangent.y = mesh->mBitangents[i].y;
+			bitangent.z = mesh->mBitangents[i].z;
 
-		// bitangent
-		glm::vec3 bitangent;
-		bitangent.x = mesh->mBitangents[i].x;
-		bitangent.y = mesh->mBitangents[i].y;
-		bitangent.z = mesh->mBitangents[i].z;
-
+		}
 		vertices.push_back(vertex);
 	}
 
@@ -187,6 +188,18 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
 		// std::vector<Texture> emissionMaps = loadMaterialTextures(material, 
 		//	aiTextureType_EMISSIVE, "texture_emission");
 		// textures.insert(textures.end(), emissionMaps.begin(), emissionMaps.end());
+	}
+	else
+	{
+		// diffuse maps
+		std::vector<Texture> diffuseMaps;
+		Texture texture;
+		texture.id = TextureFromFile("Assets/Textures/matrix.jpg", directory);
+		texture.type = aiTextureType_DIFFUSE;
+		texture.path = std::string("Assets/Textures/matrix.jpg");
+		diffuseMaps.push_back(texture);
+
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	}
 
 	return Mesh(vertices, indices, textures);

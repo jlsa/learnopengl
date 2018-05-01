@@ -12,6 +12,12 @@
 
 #include <iostream>
 
+struct OldMaterial {
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	float shininess;
+};
 
 struct Material {
 	glm::vec3 diffuse;
@@ -70,7 +76,7 @@ struct Transform {
 	glm::vec3 scale;
 };
 
-unsigned int LoadTexture(const char *path);
+//unsigned int LoadTexture(const char *path);
 
 // callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -80,8 +86,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;//800*2;
+const unsigned int SCR_HEIGHT = 1080;//600*2;
 const char * GAME_TITLE = "Learning OpenGL C++ <3";
 
 // extra controls
@@ -106,7 +112,7 @@ float nearPlane{ 0.1f };
 float farPlane{ 100.0f };
 
 
-
+Light light;
 DirectionalLight directionalLight;
 PointLight pointLights[4];
 SpotLight spotLight;
@@ -119,14 +125,28 @@ glm::vec3 pointLightPositions[] = {
 	glm::vec3(-1.38883f, 1.81763f, -2.11236f)
 };
 
-glm::vec3 backgroundColor = glm::vec4(color::black, 1.0f);
+glm::vec3 backgroundColor = glm::vec4(color::navajowhite, 1.0f);
 
 int main()
 {
+	light.position = glm::vec3(1.2f, 1.0f, 2.0f);
+	light.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+	light.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	OldMaterial emeraldMat;
+	emeraldMat.ambient = glm::vec3(0.0215f, 0.1745f, 0.0215f);
+	emeraldMat.diffuse = glm::vec3(0.07568f, 0.61424f, 0.07568f);
+	emeraldMat.specular = glm::vec3(0.633f, 0.727811f, 0.633f);
+	emeraldMat.shininess = 256.0f;
+
+	glm::vec3 lightColor = color::antiquewhite;
+	glm::vec3 objectColor = color::coral;
+
 	// directional light
 	directionalLight.direction = glm::vec3(-0.2f, 10.0f, -0.3f);
-	directionalLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f); 
-	directionalLight.diffuse = color::darkmagenta;
+	directionalLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f); 
+	directionalLight.diffuse = color::white;
 	directionalLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
 	// point lights
@@ -216,105 +236,13 @@ int main()
 
 	Shader shader("LightVertexShader.vs", "LightFragmentShader.fs");
 	Shader lampShader("LampVertexShader.vs", "LampFragmentShader.fs");
-
-	Model nanosuit("Assets/Models/nanosuit/nanosuit.obj");
+	Shader testShader("VertexShader.vs", "FragmentShader.fs");
+	
 	Model suzanne("Assets/Models/suzanne/suzanne.obj");
+	Model lowpolycharacter("Assets/Models/low-poly-character/character_low_anim.obj");
+	Model town("Assets/Models/medieval-town-base/sketchfab.obj");
+	Model nanosuit("Assets/Models/nanosuit/nanosuit.obj");
 
-	
-	// set up vertex data (and buffer(s)) and configure vertex attributes
-	// ------------------------------------------------------------------
-	int verticesSize = 8;
-	float vertices[] = {
-		// positions          // normals           // texture coords
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-	};
-
-	float vertices2[] = {
-		 0.0f,  1.0f,  0.0f,	0.5f, 0.5f, 0.5f,	1.0f, 1.0f,		// top (front)
-		-1.0f, -1.0f,  1.0f,	0.5f, 0.5f, 0.5f,	0.0f, 0.0f,				// left (front)
-		 1.0f, -1.0f,  1.0f,	0.5f, 0.5f, 0.5f,	1.0f, 0.0f,				// right (front)
-
-		 0.0f,  1.0f,  0.0f,	0.5f, 0.5f, 0.5f,	1.0f, 1.0f,				// top (right)
-		 1.0f, -1.0f,  1.0f,	0.5f, 0.5f, 0.5f,	0.0f, 1.0f,				// left (right)
-		 1.0f, -1.0f, -1.0f,	0.5f, 0.5f, 0.5f,	0.0f, 0.0f,			// right (right)
-		
-		 0.0f,  1.0f,  0.0f,	0.5f, 0.5f, 0.5f,	1.0f, 1.0f,			// top (back)
-		 1.0f, -1.0f, -1.0f,	0.5f, 0.5f, 0.5f,	0.0f, 0.0f,			// left (back)
-		-1.0f, -1.0f, -1.0f,	0.5f, 0.5f, 0.5f,	1.0f, 0.0f,			// right (back)
-
-		 0.0f,  1.0f,  0.0f,	0.5f, 0.5f, 0.5f,	1.0f, 1.0f,				// top (left)
-		-1.0f, -1.0f, -1.0f,	0.5f, 0.5f, 0.5f,	0.0f, 1.0f,				// left (left)
-		-1.0f, -1.0f,  1.0f,	0.5f, 0.5f, 0.5f,	0.0f, 0.0f,				// right (left)
-		
-		
-		// bottom
-		-1.0f, -1.0f, -1.0f,	0.5f, 0.5f, 0.5f,	0.0f, 0.0f,				// front-left (bottom)
-		 1.0f, -1.0f, -1.0f,	0.5f, 0.5f, 0.5f,	0.0f, 1.0f,				// front-right (bottom)
-		 1.0f, -1.0f,  1.0f,	0.5f, 0.5f, 0.5f,	1.0f, 1.0f,				// back-right (bottom)
-
-		 1.0f, -1.0f,  1.0f,	0.5f, 0.5f, 0.5f,	1.0f, 1.0f,				// back-right (bottom)
-		-1.0f, -1.0f,  1.0f,	0.5f, 0.5f, 0.5f,	1.0f, 0.0f,				// back-left (bottom)
-		-1.0f, -1.0f, -1.0f,	0.5f, 0.5f, 0.5f,	0.0f, 0.0f,				// front-left (bottom)
-	};
-
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-	
-
-	unsigned int VBO, VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -341,23 +269,12 @@ int main()
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 
-		// render the loaded model
-		glm::mat4 model;
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 10; j++) {
-				model = glm::mat4();
-				float angle = (i * j) * 20.0f;
-				model = glm::translate(model, glm::vec3(0.8f * i, -0.5f, 0.8f * j));
-				model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-				//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-				shader.setMat4("model", model);
-				nanosuit.Draw(shader);
-			}
-		}
-
 		shader.setVec3("viewPos", camera.Position);
 		shader.setFloat("material.shininess", 32.0f);
 		
+		
+
+
 		/*
 		Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
 		the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
@@ -394,6 +311,51 @@ int main()
 		
 		shader.setBool("useSpotLight", true);
 		
+		// render the loaded models
+		glm::mat4 model;
+
+		testShader.use();
+		testShader.setMat4("projection", projection);
+		testShader.setMat4("view", view);
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 3.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		testShader.setMat4("model", model);
+		testShader.setVec3("objectColor", objectColor);
+		testShader.setVec3("lightColor", lightColor);
+		testShader.setVec3("lightPos", light.position);
+		testShader.setVec3("viewPos", camera.Position);
+		
+		testShader.setVec3("light.ambient", light.ambient);
+		testShader.setVec3("light.diffuse", light.diffuse);
+		testShader.setVec3("light.specular", light.specular);
+
+		testShader.setVec3("material.ambient", emeraldMat.ambient);
+		testShader.setVec3("material.diffuse", emeraldMat.diffuse);
+		testShader.setVec3("material.specular", emeraldMat.specular);
+		testShader.setFloat("material.shininess", emeraldMat.shininess);
+		suzanne.Draw(shader);
+
+
+		shader.use();
+		for (int i = 0; i < 1; i++) {
+			for (int j = 0; j < 1; j++) {
+				model = glm::mat4();
+				float angle = (i * j) * 20.0f;
+				model = glm::translate(model, glm::vec3(0.8f * i, -0.5f, 0.8f * j));
+				model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+				//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+				shader.setMat4("model", model);
+				lowpolycharacter.Draw(shader);
+			}
+		}
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(2.0f, -0.5f, 2.0f));
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		shader.setMat4("model", model);
+		nanosuit.Draw(shader);
+
 		// also draw the lamp object(s)
 		lampShader.use();
 		lampShader.setMat4("projection", projection);
@@ -416,13 +378,6 @@ int main()
 		glfwPollEvents();
 	}
 
-	// optional: de-allocate all resources once they've outlived their purpose:
-	// ------------------------------------------------------------------------
-	//glDeleteVertexArrays(1, &VAO); // currently 
-	//glDeleteVertexArrays(1, &lightVAO);
-	//glDeleteBuffers(1, &VBO);
-	//glDeleteBuffers(1, &EBO);
-
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
 	glfwTerminate();
@@ -436,12 +391,12 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	
-	/*
+	
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	*/
+	
 
 	float cameraSpeed = moveSpeed * (float)deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -451,19 +406,7 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		camera.ProcessKeyboard(LEFT, (float)deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, (float)deltaTime);
-
-
-	/*if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		lightPos.x -= 1.0f * (float)deltaTime;
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		lightPos.x += 1.0f * (float)deltaTime;
-	
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		lightPos = camera.Position;
-		*/
-	
-	
+		camera.ProcessKeyboard(RIGHT, (float)deltaTime);	
 }
 
 void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -502,12 +445,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	/*if (yoffset > 0) {
-		specularStrength += 0.1f *(float)deltaTime;
-	}
-	else if (yoffset < 0) {
-		specularStrength -= 0.1f *(float)deltaTime;
-	}*/
 	camera.ProcessMouseScroll((float)yoffset);
 }
 
