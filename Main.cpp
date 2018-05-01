@@ -113,10 +113,10 @@ SpotLight spotLight;
 
 // positions of the point lights
 glm::vec3 pointLightPositions[] = {
-	glm::vec3(0.7f,  0.2f,  2.0f),
-	glm::vec3(2.3f, -3.3f, -4.0f),
-	glm::vec3(-4.0f,  2.0f, -12.0f),
-	glm::vec3(0.0f,  0.0f, -3.0f)
+	glm::vec3(-0.949481f, 1.94278f, 9.54091f),
+	glm::vec3(8.04138f, 1.74358f, 9.83926f),
+	glm::vec3(9.24493f, 1.46474f, -0.661269f),
+	glm::vec3(-1.38883f, 1.81763f, -2.11236f)
 };
 
 glm::vec3 backgroundColor = glm::vec4(color::black, 1.0f);
@@ -468,7 +468,8 @@ void processInput(GLFWwindow *window)
 
 void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-	
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+		std::cout << camera.Position.x << ", " << camera.Position.y << ", " << camera.Position.z << std::endl;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

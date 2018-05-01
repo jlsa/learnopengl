@@ -91,6 +91,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <AdditionalDependencies>assimp-vc140-mt.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -115,6 +116,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -145,7 +147,6 @@
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Models\suzanne\suzanne.obj" />
     <None Include="FragmentShader.fs" />
     <None Include="LampFragmentShader.fs" />
     <None Include="LampVertexShader.vs" />
@@ -160,16 +161,6 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Assets\Textures\awesomeface.png" />
-    <Image Include="Assets\Textures\container.jpg" />
-    <Image Include="Assets\Textures\container2.png" />
-    <Image Include="Assets\Textures\container2_specular.png" />
-    <Image Include="Assets\Textures\Image (3).jpg" />
-    <Image Include="Assets\Textures\Image.jpg" />
-    <Image Include="Assets\Textures\lighting_maps_specular_color.png" />
-    <Image Include="Assets\Textures\matrix.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
