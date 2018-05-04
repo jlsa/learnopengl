@@ -76,7 +76,7 @@ struct Transform {
 	glm::vec3 scale;
 };
 
-//unsigned int LoadTexture(const char *path);
+unsigned int LoadTexture(const char *path);
 
 // callbacks
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -86,8 +86,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 // settings
-const unsigned int SCR_WIDTH = 1920;//800*2;
-const unsigned int SCR_HEIGHT = 1080;//600*2;
+const unsigned int SCR_WIDTH = 1920/2;//800*2;
+const unsigned int SCR_HEIGHT = 1080/2;//600*2;
 const char * GAME_TITLE = "Learning OpenGL C++ <3";
 
 // extra controls
@@ -194,7 +194,6 @@ int main()
 	spotLight.cutOff	= glm::cos(glm::radians(12.5f));
 	spotLight.outerCutOff = glm::cos(glm::radians(15.0f));
 
-
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
@@ -233,6 +232,100 @@ int main()
 	// configure global opengl state
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS); // always pass the depth test (same effect as glDisable(GL_DEPTH_TEST))
+
+	Shader depthShader("Assets/Shaders/depth_testing.vs", "Assets/Shaders/depth_testing.fs");
+
+	float cubeVertices[] = {
+		// positions		  // texture coordinates
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+
+	float planeVertices[] = {
+		// positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+
+		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+	};
+
+	// cube VAO
+	unsigned int cubeVAO, cubeVBO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &cubeVBO);
+	glBindVertexArray(cubeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glBindVertexArray(0);
+
+	// plane VAO
+	unsigned int planeVAO, planeVBO;
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &planeVBO);
+	glBindVertexArray(planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glBindVertexArray(0);
+
+	// load textures
+	// -------------
+	unsigned int cubeTexture = LoadTexture("Assets/Textures/marble.jpg");
+	unsigned int floorTexture = LoadTexture("Assets/Textures/metal.png");
+
+	depthShader.use();
+	depthShader.setInt("texture1", 0);
+
 
 	Shader shader("LightVertexShader.vs", "LightFragmentShader.fs");
 	Shader lampShader("LampVertexShader.vs", "LampFragmentShader.fs");
@@ -262,19 +355,46 @@ int main()
 		glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shader.use();
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 model = glm::mat4();
+
+		depthShader.use();
+		depthShader.setMat4("view", view);
+		depthShader.setMat4("projection", projection);
+
+		// cubes
+		glBindVertexArray(cubeVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cubeTexture);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		depthShader.setMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		depthShader.setMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// floor plane
+		glBindVertexArray(planeVAO);
+		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		depthShader.setMat4("model", glm::mat4());
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+
+
+
+		shader.use();
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 
 		shader.setVec3("viewPos", camera.Position);
 		shader.setFloat("material.shininess", 32.0f);
 		
-		
-
-
 		/*
 		Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
 		the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
@@ -312,7 +432,7 @@ int main()
 		shader.setBool("useSpotLight", true);
 		
 		// render the loaded models
-		glm::mat4 model;
+		//glm::mat4 model;
 
 		testShader.use();
 		testShader.setMat4("projection", projection);
@@ -334,6 +454,7 @@ int main()
 		testShader.setVec3("material.diffuse", emeraldMat.diffuse);
 		testShader.setVec3("material.specular", emeraldMat.specular);
 		testShader.setFloat("material.shininess", emeraldMat.shininess);
+		//shader.use();
 		suzanne.Draw(shader);
 
 
@@ -377,6 +498,13 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	// Clean up
+	// --------
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteVertexArrays(1, &planeVAO);
+	glDeleteBuffers(1, &cubeVBO);
+	glDeleteBuffers(1, &planeVBO);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
