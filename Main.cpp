@@ -335,7 +335,7 @@ int main()
 	Model lowpolycharacter("Assets/Models/low-poly-character/character_low_anim.obj");
 	Model town("Assets/Models/medieval-town-base/sketchfab.obj");
 	Model nanosuit("Assets/Models/nanosuit/nanosuit.obj");
-
+	Model rotatedBox("Assets/Models/rotated-box/rotated-box.obj");
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -364,6 +364,8 @@ int main()
 		depthShader.setMat4("view", view);
 		depthShader.setMat4("projection", projection);
 
+		
+
 		// cubes
 		glBindVertexArray(cubeVAO);
 		glActiveTexture(GL_TEXTURE0);
@@ -386,7 +388,10 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
 
-
+		model = glm::mat4();
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		depthShader.setMat4("model", model);
+		rotatedBox.Draw(depthShader);
 
 		shader.use();
 		shader.setMat4("projection", projection);
