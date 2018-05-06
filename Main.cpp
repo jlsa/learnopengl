@@ -99,6 +99,7 @@ float moveSpeed{ 5.0f }; // 0.001f
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+
 bool firstMouse{ true };
 float lastX{ (float)SCR_WIDTH / 2.0f };
 float lastY{ (float)SCR_HEIGHT / 2.0f };
@@ -174,17 +175,18 @@ float cubeVertices[] = {
 
 float planeVertices[] = {
 	// positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
-	5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+	 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
 	-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
 	-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
 
-	5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+	 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
 	-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-	5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+	 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 };
 
 int main()
 {
+	camera.MovementSpeed = moveSpeed;
 	light.position = glm::vec3(1.2f, 1.0f, 2.0f);
 	light.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
 	light.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -290,7 +292,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS); // always pass the depth test (same effect as glDisable(GL_DEPTH_TEST))
 
-	Shader depthShader("Assets/Shaders/depth_testing.vs", "Assets/Shaders/depth_testing.fs");
+	
 
 	// cube VAO
 	unsigned int cubeVAO, cubeVBO;
@@ -323,10 +325,8 @@ int main()
 	unsigned int cubeTexture = LoadTexture("Assets/Textures/marble.jpg");
 	unsigned int floorTexture = LoadTexture("Assets/Textures/metal.png");
 
-	depthShader.use();
-	depthShader.setInt("texture1", 0);
 
-
+	Shader depthShader("Assets/Shaders/depth_testing.vs", "Assets/Shaders/depth_testing.fs");
 	Shader shader("LightVertexShader.vs", "LightFragmentShader.fs");
 	Shader lampShader("LampVertexShader.vs", "LampFragmentShader.fs");
 	Shader testShader("VertexShader.vs", "FragmentShader.fs");
@@ -336,6 +336,11 @@ int main()
 	Model town("Assets/Models/medieval-town-base/sketchfab.obj");
 	Model nanosuit("Assets/Models/nanosuit/nanosuit.obj");
 	Model rotatedBox("Assets/Models/rotated-box/rotated-box.obj");
+
+	depthShader.use();
+	depthShader.setInt("texture1", 0);
+
+
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -389,7 +394,6 @@ int main()
 		glBindVertexArray(0);
 
 		model = glm::mat4();
-		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 		depthShader.setMat4("model", model);
 		rotatedBox.Draw(depthShader);
 
@@ -531,9 +535,7 @@ void processInput(GLFWwindow *window)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	
 
-	float cameraSpeed = moveSpeed * (float)deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.ProcessKeyboard(FORWARD, (float)deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
