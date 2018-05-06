@@ -98,7 +98,12 @@ bool perspectiveView{ true };
 float moveSpeed{ 5.0f }; // 0.001f
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+glm::vec3 cameraPositions[] = {
+	glm::vec3(0.0f, 0.0f, 5.0f),
+	glm::vec3(-13.f, 10.0f, 5.0f),
+	glm::vec3(-4.0f, 5.0f, 6.0f)
+};
+Camera camera(cameraPositions[2], glm::vec3(0.0f, 1.0f, 0.0f), -45.0f, -30.0f);// 0.0f, 0.0f, 5.0f));
 
 bool firstMouse{ true };
 float lastX{ (float)SCR_WIDTH / 2.0f };
@@ -322,7 +327,7 @@ int main()
 
 	// load textures
 	// -------------
-	unsigned int cubeTexture = LoadTexture("Assets/Textures/marble.jpg");
+	unsigned int cubeTexture = LoadTexture("Assets/Textures/texture.png");
 	unsigned int floorTexture = LoadTexture("Assets/Textures/metal.png");
 
 
@@ -340,7 +345,7 @@ int main()
 	depthShader.use();
 	depthShader.setInt("texture1", 0);
 
-
+	glm::vec3 positionOffset(0.0f, 0.001f, 0.0f);
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -369,6 +374,9 @@ int main()
 		depthShader.setMat4("view", view);
 		depthShader.setMat4("projection", projection);
 
+		lampShader.use();
+		lampShader.setMat4("view", view);
+		lampShader.setMat4("projection", projection);
 		
 
 		// cubes
@@ -376,40 +384,82 @@ int main()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, cubeTexture);
 
-		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-		depthShader.setMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		depthShader.use();
 
-		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-		depthShader.setMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		/*for (unsigned int x = 0; x < 10; x++)
+		{
+			for (unsigned int y = 0; y < 10; y++)
+			{
+				for (unsigned int z = 0; z < 10; z++)
+				{
+					model = glm::mat4();
+					model = glm::translate(model, glm::vec3(float(x), float(y), float(z)));
+					depthShader.setMat4("model", model);
+					//glDrawArrays(GL_TRIANGLES, 0, 36);
+
+					//model = glm::mat4();
+					model = glm::scale(model, glm::vec3(1.01f, 1.01f, 1.01f));
+					lampShader.use();
+					lampShader.setMat4("view", view);
+					lampShader.setMat4("projection", projection);
+					lampShader.setVec3("color", color::white);
+					lampShader.setMat4("model", model);
+					glDrawArrays(GL_LINE_STRIP, 0, 36);
+				}
+			}
+		}*/
+		float angle = 10.0f * (float)glfwGetTime();
+		int gridSize = 3;
+		for (unsigned int x = 0; x < gridSize; x++) {
+			for (unsigned int y = 0; y < 1; y++) {
+				for (unsigned int z = 0; z < gridSize; z++) {
+					depthShader.use();
+					model = glm::mat4();
+					model = glm::translate(model, glm::vec3(float(x), float(y), float(z)) + positionOffset);
+					//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f));
+					depthShader.setMat4("model", model);
+					glDrawArrays(GL_TRIANGLES, 0, 36);
+
+					model = glm::mat4();
+					model = glm::translate(model, glm::vec3(float(x), float(y), float(z)));
+					model = glm::scale(model, glm::vec3(1.001f, 1.001f, 1.001f));
+					lampShader.use();
+					lampShader.setMat4("model", model);
+					lampShader.setVec3("color", color::white);
+
+					glDrawArrays(GL_LINE_STRIP, 0, 36);
+				}
+			}
+		}
+
+		
 
 		// floor plane
-		glBindVertexArray(planeVAO);
+		/*glBindVertexArray(planeVAO);
 		glBindTexture(GL_TEXTURE_2D, floorTexture);
 		depthShader.setMat4("model", glm::mat4());
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
+		glDrawArrays(GL_LINE_STRIP, 0, 6);
+		glBindVertexArray(0);*/
 
-		model = glm::mat4();
-		depthShader.setMat4("model", model);
-		rotatedBox.Draw(depthShader);
-
+		//model = glm::mat4();
+		//depthShader.setMat4("model", model);
+		//rotatedBox.Draw(depthShader);
+		
+		/*
 		shader.use();
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 
 		shader.setVec3("viewPos", camera.Position);
 		shader.setFloat("material.shininess", 32.0f);
-		
+		*/
 		/*
 		Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
 		the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
 		by defining light types as classes and set their values in there, or by using a more efficient uniform approach
 		by using 'Uniform buffer objects', but that is something we'll discuss in the 'Advanced GLSL' tutorial.
 		*/
+		/*
 		// directional light
 		shader.setVec3("dirLight.direction", directionalLight.direction);
 		shader.setVec3("dirLight.ambient", directionalLight.ambient);
@@ -503,6 +553,7 @@ int main()
 			lampShader.setVec3("color", pointLights[i].diffuse);
 			//suzanne.Draw(lampShader);
 		}
+		*/
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
