@@ -53,6 +53,13 @@ Model::~Model()
 {
 }
 
+void Model::DrawMesh(Shader shader)
+{
+	for (unsigned int i = 0; i < meshes.size(); i++)
+	{
+		meshes[i].DrawMesh(shader);
+	}
+}
 
 void Model::Draw(Shader shader)
 {

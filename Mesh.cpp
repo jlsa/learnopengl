@@ -57,6 +57,14 @@ void Mesh::Draw(Shader shader)
 	glActiveTexture(GL_TEXTURE0);
 }
 
+void Mesh::DrawMesh(Shader shader)
+{
+	// draw mesh
+	glBindVertexArray(VAO);
+	glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
 Mesh::~Mesh()
 {
 }

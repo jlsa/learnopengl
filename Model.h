@@ -33,6 +33,7 @@ public:
 	~Model();
 
 	void Draw(Shader shader);
+	void DrawMesh(Shader shader);
 
 private:
 	/* Model Data*/
