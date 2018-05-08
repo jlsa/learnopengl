@@ -5,13 +5,48 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "TetrisShapes.h"
 #include "Color.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
 
 #include <iostream>
+
+char pieces[1][4][5][5]
+{
+	// square
+	{
+		{
+			{0, 0, 0, 0, 0},
+			{0, 0, 1, 0, 0},
+			{0, 0, 2, 1, 0},
+			{0, 0, 1, 0, 0},
+			{0, 0, 0, 0, 0}
+		},
+		{
+			{0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0},
+			{0, 1, 2, 1, 0},
+			{0, 0, 1, 0, 0},
+			{0, 0, 0, 0, 0}
+		},
+	    {
+			{0, 0, 0, 0, 0},
+			{0, 0, 1, 0, 0},
+			{0, 1, 2, 0, 0},
+			{0, 0, 1, 0, 0},
+			{0, 0, 0, 0, 0}
+		},
+	    {
+			{0, 0, 0, 0, 0},
+			{0, 0, 1, 0, 0},
+			{0, 1, 2, 1, 0},
+			{0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0}
+		}
+	}
+};
+
 
 unsigned int LoadTexture(const char *path);
 
@@ -38,9 +73,11 @@ float moveSpeed{ 5.0f }; // 0.001f
 glm::vec3 cameraPositions[] = {
 	glm::vec3(0.0f, 0.0f, 5.0f),
 	glm::vec3(-13.f, 10.0f, 5.0f),
-	glm::vec3(-5.0f, 5.0f, 7.5f)
+	glm::vec3(-5.0f, 5.0f, 7.5f),
+	glm::vec3(-10.8627f, 15.825f, -11.3474f)
 };
-Camera camera(cameraPositions[2], glm::vec3(0.0f, 1.0f, 0.0f), -45.0f, -30.0f);// 0.0f, 0.0f, 5.0f));
+
+Camera camera(cameraPositions[3], glm::vec3(0.0f, 1.0f, 0.0f), 45.0f, -25.0f);// -45.0f, -30.0f);// 0.0f, 0.0f, 5.0f));
 
 bool firstMouse{ true };
 float lastX{ (float)SCR_WIDTH / 2.0f };
@@ -63,16 +100,38 @@ enum Sides {
 
 glm::vec3 backgroundColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);//color::navajowhite, 1.0f);
 
-const int GRID_SIZE = 10;
+//const int GRID_SIZE = 7;
+const glm::vec3 GRID_SIZE(7.0f, 14.0f, 7.0f);
 
 Sides currentSide = One;
 glm::vec3 positionOffset(0.0f, 0.001f, 0.0f);
 glm::vec3 gridRotation(0.0f, 0.0f, 0.0f);
 
-bool grid[GRID_SIZE][GRID_SIZE][GRID_SIZE];
+bool*** grid;
+
+float planeVertices[] = {
+	// positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+	5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+	-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+	-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+
+	5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+	-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+	5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+};
 
 int main()
 {
+	//grid[(int)GRID_SIZE.x][(int)GRID_SIZE.y][(int)GRID_SIZE.z];
+	grid = new bool**[(int)GRID_SIZE.x];
+	for (int i = 0; i < (int)GRID_SIZE.x; i++)
+	{
+		grid[i] = new bool*[(int)GRID_SIZE.y];
+		for (int j = 0; j < (int)GRID_SIZE.y; j++)
+		{
+			grid[i][j] = new bool[(int)GRID_SIZE.z];
+		}
+	}
 	camera.MovementSpeed = moveSpeed;
 	// glfw: initialize and configure
 	// ------------------------------
@@ -118,17 +177,41 @@ int main()
 	// -------------
 	Shader lampShader("LampVertexShader.vs", "LampFragmentShader.fs");
 	Model cubeModel("Assets/Models/cube/cube.obj");
+	Model quadModel("Assets/Models/quad/quad.obj");
 	
-	for (unsigned int x = 0; x < GRID_SIZE; x++)
+
+	// plane VAO
+	unsigned int planeVAO, planeVBO;
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &planeVBO);
+	glBindVertexArray(planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glBindVertexArray(0);
+
+	for (unsigned int x = 0; x < (int)GRID_SIZE.x; x++)
 	{
-		for (unsigned int y = 0; y < GRID_SIZE; y++)
+		for (unsigned int y = 0; y < (int)GRID_SIZE.y; y++)
 		{
-			for (unsigned int z = 0; z < GRID_SIZE; z++)
+			for (unsigned int z = 0; z < (int)GRID_SIZE.z; z++)
 			{
 				grid[x][y][z] = false;
 			}
 		}
 	}
+
+	/*grid[0][0][0] = true;
+	grid[1][0][0] = true;
+	grid[0][1][0] = true;
+	grid[0][2][0] = true;*/
+	grid[0][0][0] = true;
+	grid[1][0][0] = true;
+	grid[2][0][0] = true;
+	grid[3][0][0] = true;
 
 	// render loop
 	// -----------
@@ -158,6 +241,26 @@ int main()
 		lampShader.setMat4("view", view);
 		lampShader.setMat4("projection", projection);
 		
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		lampShader.setVec3("color", color::white);
+		lampShader.setMat4("model", model);
+		quadModel.DrawMesh(lampShader);
+
+		// floor plane
+		//glBindVertexArray(planeVAO);
+		//glBindTexture(GL_TEXTURE_2D, floorTexture);
+		//model = glm::mat4();
+		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.1f));
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		//lampShader.setMat4("model", model);
+		//lampShader.setVec3("color", color::lightgrey);
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		//lampShader.setVec3("color", color::yellow);
+		//glDrawArrays(GL_LINE_STRIP, 0, 6);
+		//glBindVertexArray(0);
+
 		float angle = 0.0f;
 		glm::vec3 move(0.0f, 0.0f, 0.0f);
 		if (currentSide == One) 
@@ -167,25 +270,25 @@ int main()
 		}
 		if (currentSide == Two) 
 		{
-			move = glm::vec3(-((float)GRID_SIZE-1.0f), 0.0f, 0.0f);
+			move = glm::vec3(-(GRID_SIZE.x-1.0f), 0.0f, 0.0f);
 			angle = 90.0f;
 		}
 		if (currentSide == Three) 
 		{
-			move = glm::vec3(-((float)GRID_SIZE - 1.0f), 0.0f, -((float)GRID_SIZE - 1.0f));
+			move = glm::vec3(-(GRID_SIZE.x - 1.0f), 0.0f, -(GRID_SIZE.z - 1.0f));
 			angle = 180.0f;
 		}
 		if (currentSide == Four) 
 		{
-			move = glm::vec3(0.0f, 0.0f, -((float)GRID_SIZE - 1.0f));
+			move = glm::vec3(0.0f, 0.0f, -(GRID_SIZE.z - 1.0f));
 			angle = 270.0f;
 		}
 
-		for (unsigned int x = 0; x < GRID_SIZE; x++) 
+		for (unsigned int x = 0; x < (int)GRID_SIZE.x; x++) 
 		{
-			for (unsigned int y = 0; y < GRID_SIZE; y++) 
+			for (unsigned int y = 0; y < (int)GRID_SIZE.y; y++) 
 			{
-				for (unsigned int z = 0; z < GRID_SIZE; z++) 
+				for (unsigned int z = 0; z < (int)GRID_SIZE.z; z++) 
 				{
 					glm::vec3 margin(0.1f * x, 0.1f * y, 0.1f * z);
 					margin = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -203,7 +306,7 @@ int main()
 						model = glm::scale(model, glm::vec3(0.99f));
 						lampShader.setMat4("model", model);
 
-						col = color::lightyellow;
+						col = color::darkviolet;
 						lampShader.setVec3("color", col);
 						cubeModel.Draw(lampShader);
 
@@ -236,6 +339,17 @@ int main()
 		glfwPollEvents();
 	}
 
+	// CLEANUP
+	for (int i = 0; i < (int)GRID_SIZE.x; i++)
+	{
+		for (int j = 0; j < (int)GRID_SIZE.y; j++)
+		{
+			delete[] grid[i][j];
+		}
+		delete[] grid[i];
+	}
+	delete[] grid;
+
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
 	glfwTerminate();
@@ -267,8 +381,10 @@ void processInput(GLFWwindow *window)
 
 void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-		std::cout << camera.Position.x << ", " << camera.Position.y << ", " << camera.Position.z << std::endl;
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+		std::cout << camera.Position.x << ", " << camera.Position.y << ", " << camera.Position.z << "\n";
+		std::cout << camera.Yaw << ", " << camera.Pitch << std::endl;
+	}
 
 	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) 
 	{
