@@ -1,3 +1,5 @@
+// ------ Includes ------
+
 #include <glad/glad.h>
 #include <glfw3.h>
 
@@ -12,41 +14,8 @@
 
 #include <iostream>
 
-char pieces[1][4][5][5]
-{
-	// square
-	{
-		{
-			{0, 0, 0, 0, 0},
-			{0, 0, 1, 0, 0},
-			{0, 0, 2, 1, 0},
-			{0, 0, 1, 0, 0},
-			{0, 0, 0, 0, 0}
-		},
-		{
-			{0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0},
-			{0, 1, 2, 1, 0},
-			{0, 0, 1, 0, 0},
-			{0, 0, 0, 0, 0}
-		},
-	    {
-			{0, 0, 0, 0, 0},
-			{0, 0, 1, 0, 0},
-			{0, 1, 2, 0, 0},
-			{0, 0, 1, 0, 0},
-			{0, 0, 0, 0, 0}
-		},
-	    {
-			{0, 0, 0, 0, 0},
-			{0, 0, 1, 0, 0},
-			{0, 1, 2, 1, 0},
-			{0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0}
-		}
-	}
-};
-
+#include "Board.h"
+#include "Pieces.h"
 
 unsigned int LoadTexture(const char *path);
 
@@ -120,6 +89,21 @@ float planeVertices[] = {
 	5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 };
 
+void DrawPiece(Pieces &pieces, int x, int y, int piece, int rotation)
+{
+	for (int x = 0; x < 5; x++)
+	{
+		for (int y = 0; y < 5; y++)
+		{
+			if (pieces.GetBlockType(piece, rotation, y, x) != 0)
+			{
+				// draw cube
+
+			}
+		}
+	}
+}
+
 int main()
 {
 	//grid[(int)GRID_SIZE.x][(int)GRID_SIZE.y][(int)GRID_SIZE.z];
@@ -132,6 +116,13 @@ int main()
 			grid[i][j] = new bool[(int)GRID_SIZE.z];
 		}
 	}
+
+	Pieces pieces;
+	Board board(&pieces);
+
+	board.StorePiece(2, 0, 0, 0);
+	board.StorePiece(1, 2, 1, 1);
+
 	camera.MovementSpeed = moveSpeed;
 	// glfw: initialize and configure
 	// ------------------------------
@@ -181,7 +172,7 @@ int main()
 	
 
 	// plane VAO
-	unsigned int planeVAO, planeVBO;
+	/*unsigned int planeVAO, planeVBO;
 	glGenVertexArrays(1, &planeVAO);
 	glGenBuffers(1, &planeVBO);
 	glBindVertexArray(planeVAO);
@@ -191,7 +182,7 @@ int main()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glBindVertexArray(0);
+	glBindVertexArray(0);*/
 
 	for (unsigned int x = 0; x < (int)GRID_SIZE.x; x++)
 	{
@@ -208,10 +199,10 @@ int main()
 	grid[1][0][0] = true;
 	grid[0][1][0] = true;
 	grid[0][2][0] = true;*/
-	grid[0][0][0] = true;
-	grid[1][0][0] = true;
-	grid[2][0][0] = true;
-	grid[3][0][0] = true;
+	//grid[0][4][0] = true;
+	//grid[1][3][0] = true;
+	//grid[2][2][0] = true;
+	//grid[3][1][0] = true;
 
 	// render loop
 	// -----------
@@ -288,12 +279,12 @@ int main()
 		{
 			for (unsigned int y = 0; y < (int)GRID_SIZE.y; y++) 
 			{
-				for (unsigned int z = 0; z < (int)GRID_SIZE.z; z++) 
+				for (unsigned int z = 0; z < 1; z++) //(int)GRID_SIZE.z; z++)
 				{
 					glm::vec3 margin(0.1f * x, 0.1f * y, 0.1f * z);
 					margin = glm::vec3(0.1f, 0.1f, 0.1f);
 					glm::vec3 col;
-					if (grid[x][y][z]) 
+					if (board.mBoard[x][y][z] != 0) //grid[x][y][z])
 					{
 						lampShader.use();
 						model = glm::mat4();
