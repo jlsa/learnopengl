@@ -1,4 +1,5 @@
 // ------ Includes ------
+#include "Defines.h"
 
 #include <glad/glad.h>
 #include <glfw3.h>
@@ -27,9 +28,9 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 // settings
-const unsigned int SCR_WIDTH = 1920/2;//800*2;
-const unsigned int SCR_HEIGHT = 1080/2;//600*2;
-const char * GAME_TITLE = "Learning OpenGL C++ <3";
+//const unsigned int SCR_WIDTH = 1920/2;//800*2;
+//const unsigned int SCR_HEIGHT = 1080/2;//600*2;
+// const char * GAME_TITLE = "Learning OpenGL C++ <3";
 
 // extra controls
 float interpolationValue{ 0.75f }; // 0.2f
@@ -70,52 +71,16 @@ enum Sides {
 glm::vec3 backgroundColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);//color::navajowhite, 1.0f);
 
 //const int GRID_SIZE = 7;
-const glm::vec3 GRID_SIZE(7.0f, 14.0f, 7.0f);
+const glm::vec3 GRID_SIZE(float(BOARD_WIDTH), float(BOARD_HEIGHT), float(BOARD_DEPTH));
 
 Sides currentSide = One;
 glm::vec3 positionOffset(0.0f, 0.001f, 0.0f);
 glm::vec3 gridRotation(0.0f, 0.0f, 0.0f);
 
-bool*** grid;
-
-float planeVertices[] = {
-	// positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
-	5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-	-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-	-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-
-	5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-	-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-	5.0f, -0.5f, -5.0f,  2.0f, 2.0f
-};
-
-void DrawPiece(Pieces &pieces, int x, int y, int piece, int rotation)
-{
-	for (int x = 0; x < 5; x++)
-	{
-		for (int y = 0; y < 5; y++)
-		{
-			if (pieces.GetBlockType(piece, rotation, y, x) != 0)
-			{
-				// draw cube
-
-			}
-		}
-	}
-}
+const int dropTime = 1000; // milliseconds
 
 int main()
 {
-	//grid[(int)GRID_SIZE.x][(int)GRID_SIZE.y][(int)GRID_SIZE.z];
-	grid = new bool**[(int)GRID_SIZE.x];
-	for (int i = 0; i < (int)GRID_SIZE.x; i++)
-	{
-		grid[i] = new bool*[(int)GRID_SIZE.y];
-		for (int j = 0; j < (int)GRID_SIZE.y; j++)
-		{
-			grid[i][j] = new bool[(int)GRID_SIZE.z];
-		}
-	}
 
 	Pieces pieces;
 	Board board(&pieces);
@@ -146,7 +111,7 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetKeyCallback(window, keyboard_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -168,41 +133,6 @@ int main()
 	// -------------
 	Shader lampShader("LampVertexShader.vs", "LampFragmentShader.fs");
 	Model cubeModel("Assets/Models/cube/cube.obj");
-	Model quadModel("Assets/Models/quad/quad.obj");
-	
-
-	// plane VAO
-	/*unsigned int planeVAO, planeVBO;
-	glGenVertexArrays(1, &planeVAO);
-	glGenBuffers(1, &planeVBO);
-	glBindVertexArray(planeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glBindVertexArray(0);*/
-
-	for (unsigned int x = 0; x < (int)GRID_SIZE.x; x++)
-	{
-		for (unsigned int y = 0; y < (int)GRID_SIZE.y; y++)
-		{
-			for (unsigned int z = 0; z < (int)GRID_SIZE.z; z++)
-			{
-				grid[x][y][z] = false;
-			}
-		}
-	}
-
-	/*grid[0][0][0] = true;
-	grid[1][0][0] = true;
-	grid[0][1][0] = true;
-	grid[0][2][0] = true;*/
-	//grid[0][4][0] = true;
-	//grid[1][3][0] = true;
-	//grid[2][2][0] = true;
-	//grid[3][1][0] = true;
 
 	// render loop
 	// -----------
@@ -213,6 +143,9 @@ int main()
 		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+		
+
+
 
 		// input
 		// -----
@@ -231,26 +164,6 @@ int main()
 		lampShader.use();
 		lampShader.setMat4("view", view);
 		lampShader.setMat4("projection", projection);
-		
-		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		lampShader.setVec3("color", color::white);
-		lampShader.setMat4("model", model);
-		quadModel.DrawMesh(lampShader);
-
-		// floor plane
-		//glBindVertexArray(planeVAO);
-		//glBindTexture(GL_TEXTURE_2D, floorTexture);
-		//model = glm::mat4();
-		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(0.1f));
-		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		//lampShader.setMat4("model", model);
-		//lampShader.setVec3("color", color::lightgrey);
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
-		//lampShader.setVec3("color", color::yellow);
-		//glDrawArrays(GL_LINE_STRIP, 0, 6);
-		//glBindVertexArray(0);
 
 		float angle = 0.0f;
 		glm::vec3 move(0.0f, 0.0f, 0.0f);
@@ -330,17 +243,6 @@ int main()
 		glfwPollEvents();
 	}
 
-	// CLEANUP
-	for (int i = 0; i < (int)GRID_SIZE.x; i++)
-	{
-		for (int j = 0; j < (int)GRID_SIZE.y; j++)
-		{
-			delete[] grid[i][j];
-		}
-		delete[] grid[i];
-	}
-	delete[] grid;
-
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
 	glfwTerminate();
@@ -379,26 +281,6 @@ void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, in
 
 	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) 
 	{
-		if (currentSide == One) 
-		{
-			currentSide = Two;
-		}
-		else if (currentSide == Two)
-		{
-			currentSide = Three;
-		}
-		else if (currentSide == Three)
-		{
-			currentSide = Four;
-		}
-		else if (currentSide == Four)
-		{
-			currentSide = One;
-		}
-	}
-
-	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-	{
 		if (currentSide == Four)
 		{
 			currentSide = Three;
@@ -416,7 +298,29 @@ void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, in
 			currentSide = Four;
 		}
 	}
+
+	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+	{
+		if (currentSide == One)
+		{
+			currentSide = Two;
+		}
+		else if (currentSide == Two)
+		{
+			currentSide = Three;
+		}
+		else if (currentSide == Three)
+		{
+			currentSide = Four;
+		}
+		else if (currentSide == Four)
+		{
+			currentSide = One;
+		}
+		
+	}
 }
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -442,7 +346,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = (float)xpos;
 	lastY = (float)ypos;
 	
-	camera.ProcessMouseMovement((float)xoffset, (float)yoffset);
+	//camera.ProcessMouseMovement((float)xoffset, (float)yoffset);
 	
 }
 

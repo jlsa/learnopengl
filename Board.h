@@ -1,15 +1,14 @@
 #pragma once
 
 // ------ Includes ------
+#include "Defines.h"
 
 #include "Pieces.h"
 
+
 // ------ Defines ------
 
-#define BOARD_WIDTH 7		// Board width in blocks
-#define BOARD_HEIGHT 14		// Board height in blocks
-#define BOARD_DEPTH 7		// Board depth in blocks
-#define PIECE_BLOCKS 5		// number of horizontal and vertical blocks of a matrix piece
+
 
 
 class Board
